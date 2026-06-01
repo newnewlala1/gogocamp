@@ -153,6 +153,20 @@
     <priority>0.3</priority>
   </url>
 
+  <!-- API 데이터 기반 신규 페이지 -->
+  <url>
+    <loc>https://gogocamp.kr/campground-hankeryeong.html</loc>
+    <lastmod>2026-06-01</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://gogocamp.kr/recreation-forest-ranking.html</loc>
+    <lastmod>2026-06-01</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+
   <!-- 운영 정보 -->
   <url>
     <loc>https://gogocamp.kr/contact.html</loc>
