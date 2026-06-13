@@ -70,27 +70,29 @@
  <section>
  <div class="container">
 
- <div class="filter-bar">
+ <div class="filter-bar" data-filter-group="region">
  <span class="filter-label">지역</span>
- <button class="filter-btn active">전체</button>
- <button class="filter-btn">서울·경기</button>
- <button class="filter-btn">강원도</button>
- <button class="filter-btn">충청도</button>
- <button class="filter-btn">경상도</button>
- <button class="filter-btn">전라도</button>
- <button class="filter-btn">제주도</button>
+ <button class="filter-btn active" data-filter="all">전체</button>
+ <button class="filter-btn" data-filter="서울·경기">서울·경기</button>
+ <button class="filter-btn" data-filter="강원도">강원도</button>
+ <button class="filter-btn" data-filter="충청도">충청도</button>
+ <button class="filter-btn" data-filter="경상도">경상도</button>
+ <button class="filter-btn" data-filter="전라도">전라도</button>
+ <button class="filter-btn" data-filter="제주도">제주도</button>
  </div>
 
- <div class="filter-bar">
+ <div class="filter-bar" data-filter-group="theme">
  <span class="filter-label">테마</span>
- <button class="filter-btn active">전체</button>
- <button class="filter-btn">가족캠핑</button>
- <button class="filter-btn">글램핑</button>
- <button class="filter-btn">반려동물</button>
- <button class="filter-btn">불멍캠핑</button>
- <button class="filter-btn">오토캠핑</button>
- <button class="filter-btn">해변·강변</button>
+ <button class="filter-btn active" data-filter="all">전체</button>
+ <button class="filter-btn" data-filter="가족캠핑">가족캠핑</button>
+ <button class="filter-btn" data-filter="글램핑">글램핑</button>
+ <button class="filter-btn" data-filter="반려동물">반려동물</button>
+ <button class="filter-btn" data-filter="불멍캠핑">불멍캠핑</button>
+ <button class="filter-btn" data-filter="오토캠핑">오토캠핑</button>
+ <button class="filter-btn" data-filter="해변·강변">해변·강변</button>
  </div>
+
+ <p id="filter-empty" class="filter-empty" style="display:none;text-align:center;color:#6b7280;padding:32px 16px;font-size:15px;">선택한 조건에 맞는 캠핑장이 없습니다. 다른 지역·테마를 선택해 보세요.</p>
 
  <!-- 캠핑장 1 -->
  <article class="camp-review">
@@ -761,6 +763,100 @@
  </div>
 </footer>
 
+<script>
+(function(){
+  // 메타 텍스트 → 통합 지역 매핑
+  var REGION_MAP = [
+    { keys: ['서울','경기','인천','수도권'], region: '서울·경기' },
+    { keys: ['강원'], region: '강원도' },
+    { keys: ['충청','충북','충남','대전','세종'], region: '충청도' },
+    { keys: ['경상','경남','경북','부산','대구','울산'], region: '경상도' },
+    { keys: ['전라','전남','전북','광주'], region: '전라도' },
+    { keys: ['제주'], region: '제주도' }
+  ];
+
+  // 태그·뱃지 → 테마 매핑 (부분 문자열 매칭)
+  var THEME_MAP = {
+    '가족캠핑': ['가족'],
+    '글램핑': ['글램핑'],
+    '반려동물': ['반려동물','강아지'],
+    '불멍캠핑': ['불멍','캠프파이어','캠프 파이어'],
+    '오토캠핑': ['오토캠핑','오토 캠핑'],
+    '해변·강변': ['바다뷰','해변','강변','낙조','일몰','섬뷰','에메랄드','한려수도','서해바다','갯벌']
+  };
+
+  function detectRegion(text){
+    for (var i=0;i<REGION_MAP.length;i++){
+      var entry = REGION_MAP[i];
+      for (var k=0;k<entry.keys.length;k++){
+        if (text.indexOf(entry.keys[k]) !== -1) return entry.region;
+      }
+    }
+    return '';
+  }
+
+  function detectThemes(textArr){
+    var found = [];
+    Object.keys(THEME_MAP).forEach(function(theme){
+      var kws = THEME_MAP[theme];
+      for (var i=0;i<textArr.length;i++){
+        for (var j=0;j<kws.length;j++){
+          if (textArr[i].indexOf(kws[j]) !== -1){
+            if (found.indexOf(theme) === -1) found.push(theme);
+            break;
+          }
+        }
+      }
+    });
+    return found;
+  }
+
+  // 각 article에 data-region·data-themes 태깅
+  var articles = document.querySelectorAll('article.camp-review');
+  articles.forEach(function(art){
+    var metaEl = art.querySelector('.meta-info');
+    var badgeEl = art.querySelector('.camp-badge');
+    var tagEls = art.querySelectorAll('.camp-tag');
+
+    var regionText = (metaEl ? metaEl.textContent : '') + ' ' + (badgeEl ? badgeEl.textContent : '');
+    art.dataset.region = detectRegion(regionText);
+
+    var tagTexts = [];
+    if (badgeEl) tagTexts.push(badgeEl.textContent);
+    tagEls.forEach(function(t){ tagTexts.push(t.textContent); });
+    art.dataset.themes = detectThemes(tagTexts).join('|');
+  });
+
+  // 현재 선택 상태
+  var state = { region: 'all', theme: 'all' };
+
+  function applyFilter(){
+    var visible = 0;
+    articles.forEach(function(art){
+      var matchRegion = (state.region === 'all') || (art.dataset.region === state.region);
+      var matchTheme  = (state.theme === 'all')  || (('|'+art.dataset.themes+'|').indexOf('|'+state.theme+'|') !== -1);
+      var show = matchRegion && matchTheme;
+      art.style.display = show ? '' : 'none';
+      if (show) visible++;
+    });
+    var emptyEl = document.getElementById('filter-empty');
+    if (emptyEl) emptyEl.style.display = (visible === 0) ? '' : 'none';
+  }
+
+  // 버튼 이벤트 바인딩
+  document.querySelectorAll('[data-filter-group]').forEach(function(bar){
+    var group = bar.getAttribute('data-filter-group'); // 'region' or 'theme'
+    bar.querySelectorAll('.filter-btn').forEach(function(btn){
+      btn.addEventListener('click', function(){
+        bar.querySelectorAll('.filter-btn').forEach(function(b){ b.classList.remove('active'); });
+        btn.classList.add('active');
+        state[group] = btn.getAttribute('data-filter');
+        applyFilter();
+      });
+    });
+  });
+})();
+</script>
 </body>
 </html>
 
