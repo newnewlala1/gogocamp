@@ -68,6 +68,39 @@ header {
 .nav-menu a:hover { background: rgba(255,255,255,0.15); color: var(--white); }
 .nav-menu a.active { background: var(--orange); color: var(--white); }
 
+/* ===== 모바일 햄버거 버튼 (768px 이하에서만 표시) ===== */
+.mobile-menu-toggle {
+    display: none;
+    background: transparent;
+    border: 0;
+    width: 40px;
+    height: 40px;
+    padding: 0;
+    cursor: pointer;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    gap: 5px;
+    margin-left: auto;
+}
+.mobile-menu-toggle span {
+    display: block;
+    width: 24px;
+    height: 2px;
+    background: var(--white);
+    transition: all 0.25s ease;
+    transform-origin: center;
+}
+.mobile-menu-toggle.active span:nth-child(1) {
+    transform: translateY(7px) rotate(45deg);
+}
+.mobile-menu-toggle.active span:nth-child(2) {
+    opacity: 0;
+}
+.mobile-menu-toggle.active span:nth-child(3) {
+    transform: translateY(-7px) rotate(-45deg);
+}
+
 /* ===== HERO ===== */
 .hero {
     background: linear-gradient(160deg, var(--green-dark) 0%, var(--green-primary) 60%, var(--green-medium) 100%);
@@ -720,4 +753,38 @@ footer { background: var(--green-dark); color: rgba(255,255,255,0.7); padding: 4
     .mistake-grid { grid-template-columns: 1fr; }
     .budget-grid { grid-template-columns: 1fr; }
     .scenario-grid { grid-template-columns: 1fr; }
+
+    /* ===== 모바일 햄버거 메뉴 활성화 ===== */
+    .mobile-menu-toggle { display: flex; }
+
+    /* 로고 살짝 축소 */
+    .logo { font-size: 18px; white-space: nowrap; }
+
+    /* 모바일 헤더 정렬 */
+    .header-inner { gap: 8px; }
+
+    /* nav 접힘 상태 */
+    nav.mobile-collapsed .nav-menu { display: none; }
+
+    /* nav 펼침 상태 — 헤더 바로 아래 드롭다운 */
+    nav:not(.mobile-collapsed) .nav-menu {
+        display: flex;
+        flex-direction: column;
+        gap: 0;
+        position: absolute;
+        top: 64px;
+        left: 0;
+        right: 0;
+        background: var(--green-primary);
+        padding: 12px 16px 16px;
+        box-shadow: 0 6px 14px rgba(0,0,0,0.2);
+        z-index: 998;
+    }
+    nav:not(.mobile-collapsed) .nav-menu a {
+        display: block;
+        padding: 14px 16px;
+        font-size: 16px;
+        border-radius: 8px;
+        white-space: nowrap;
+    }
 }
