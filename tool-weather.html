@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>캠핑 가능 여부 판정 — 날씨 조건 기반 자동 판정 | 고고캠프</title>
+<meta name="description" content="풍속·강수·기온을 입력하면 캠핑 가능 여부(GO/대기/비추)를 판정합니다. 각 조건별 위험도 자동 평가.">
+<link rel="canonical" href="https://gogocamp.kr/tool-weather.html">
+<link rel="stylesheet" href="css/style.css?v=3">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700;800&display=swap" rel="stylesheet">
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"WebApplication","name":"캠핑 가능 여부 판정","applicationCategory":"Utility","operatingSystem":"Web","url":"https://gogocamp.kr/tool-weather.html"}</script>
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-8296789991007286" crossorigin="anonymous"></script>
+<style>
+.tool-wrap{max-width:720px;margin:0 auto;padding:24px 16px}
+.tool-wrap h1{font-size:1.6rem;margin:0 0 8px}
+.tool-lead{color:#6b7280;margin:0 0 24px}
+.tool-form{background:#fff;border:1px solid #e5e7eb;border-radius:12px;padding:20px}
+.tool-row{margin-bottom:16px}
+.tool-row label{display:block;font-weight:600;margin-bottom:6px;font-size:0.95rem}
+.tool-row input,.tool-row select{width:100%;padding:10px 12px;border:1px solid #d1d5db;border-radius:8px;font-size:1rem;box-sizing:border-box}
+.tool-row .hint{color:#9ca3af;font-size:0.82rem;margin-top:4px}
+.tool-btn{width:100%;padding:14px;background:#059669;color:#fff;border:0;border-radius:8px;font-size:1rem;font-weight:700;cursor:pointer;margin-top:8px}
+.tool-btn:hover{background:#047857}
+.tool-result{display:none;margin-top:20px;border-radius:12px;padding:20px}
+.tool-result.show{display:block}
+.tool-result.go{background:#f0fdf4;border:2px solid #059669}
+.tool-result.wait{background:#fffbeb;border:2px solid #f59e0b}
+.tool-result.no{background:#fef2f2;border:2px solid #dc2626}
+.verdict{font-size:1.8rem;font-weight:800;margin:0 0 12px}
+.verdict.go{color:#059669}
+.verdict.wait{color:#d97706}
+.verdict.no{color:#dc2626}
+.cond-list{margin:16px 0;padding:0;list-style:none}
+.cond-list li{padding:10px;background:rgba(255,255,255,0.6);border-radius:6px;margin-bottom:6px;font-size:0.9rem}
+.cond-list .ok{color:#059669}
+.cond-list .warn{color:#d97706}
+.cond-list .bad{color:#dc2626}
+.breadcrumb-tool{color:#6b7280;font-size:0.85rem;margin-bottom:16px}
+.breadcrumb-tool a{color:#059669;text-decoration:none}
+.ref-link{margin-top:16px;padding:12px;background:#f9fafb;border-radius:8px;font-size:0.85rem}
+.ref-link a{color:#059669}
+</style>
+</head>
+<body>
+
+<header><div class="container"><div class="header-inner"><a href="index.html" class="logo">고고<span class="accent">캠프</span></a><nav><ul class="nav-menu"><li><a href="index.html">홈</a></li><li><a href="campgrounds.html">캠핑장 찾기</a></li><li><a href="tools.html" class="active">도구</a></li><li><a href="guide.html">가이드</a></li><li><a href="tips.html">팁</a></li><li><a href="about.html">소개</a></li></ul></nav></div></div></header>
+
+<main>
+<div class="tool-wrap">
+<div class="breadcrumb-tool"><a href="index.html">홈</a> › <a href="tools.html">도구</a> › 캠핑 가능 판정</div>
+<h1>캠핑 가능 여부 판정</h1>
+<p class="tool-lead">기상청에서 확인한 예보값을 입력하면 캠핑 가능 여부를 자동 판정합니다.</p>
+
+<form class="tool-form" onsubmit="return calcW(event)">
+<div class="tool-row">
+<label for="wind">예상 풍속 (m/s)</label>
+<input type="number" id="wind" min="0" max="30" step="0.1" value="3" required>
+<div class="hint">기상청 "시간별 예보" 참조. 5 이하 안전, 8 이상 위험</div>
+</div>
+<div class="tool-row">
+<label for="rain">예상 강수량 (mm/시간)</label>
+<input type="number" id="rain" min="0" max="100" step="0.1" value="0" required>
+<div class="hint">5mm 이하 가능, 20mm 이상 위험</div>
+</div>
+<div class="tool-row">
+<label for="tempMin">새벽 최저 기온 (℃)</label>
+<input type="number" id="tempMin" min="-30" max="35" value="15" required>
+</div>
+<div class="tool-row">
+<label for="tempMax">낮 최고 기온 (℃)</label>
+<input type="number" id="tempMax" min="-20" max="45" value="25" required>
+</div>
+<div class="tool-row">
+<label for="warning">주의보·경보 상황</label>
+<select id="warning">
+<option value="none">발령 없음</option>
+<option value="dry">건조 주의보</option>
+<option value="wind">강풍 주의보</option>
+<option value="rain">호우 주의보</option>
+<option value="snow">대설 주의보</option>
+<option value="typhoon">태풍 특보</option>
+<option value="cold">한파 특보</option>
+<option value="heat">폭염 특보</option>
+<option value="fire">산불 경보</option>
+</select>
+</div>
+<div class="tool-row">
+<label for="camperType">사용자 숙련도</label>
+<select id="camperType">
+<option value="beginner">초보 (1~2회)</option>
+<option value="intermediate" selected>중급 (5회+)</option>
+<option value="advanced">숙련 (연 10회+)</option>
+</select>
+</div>
+<button type="submit" class="tool-btn">판정하기</button>
+</form>
+
+<div class="tool-result" id="result">
+<div class="verdict" id="r-verdict">-</div>
+<p id="r-summary"></p>
+<ul class="cond-list" id="r-conds"></ul>
+<p style="font-size:0.85rem;color:#6b7280;margin-top:12px">※ 본 판정은 민간 참고용입니다. 캠핑장 안전 및 대피 결정은 반드시 공식 기상 정보와 캠핑장 안내를 우선 확인하세요.</p>
+</div>
+
+<div class="ref-link">
+<strong>공식 기상 정보:</strong>
+<a href="https://www.weather.go.kr" target="_blank" rel="noopener">기상청</a> ·
+<a href="https://www.weather.go.kr/weather/warning/warning.jsp" target="_blank" rel="noopener">주의보·경보</a> ·
+<a href="https://forest.go.kr" target="_blank" rel="noopener">산림청 산불경보</a>
+</div>
+
+<div style="margin-top:28px">
+<h3>관련 도구·가이드</h3>
+<ul>
+<li><a href="tool-sleeping-bag.html">침낭 온도 등급 추천</a></li>
+<li><a href="tip-rain-camping.html">비 캠핑 대응 가이드</a></li>
+<li><a href="tip-winter-camping.html">겨울 캠핑 가이드</a></li>
+</ul>
+</div>
+</div>
+</main>
+
+<script>
+function calcW(e){
+e.preventDefault();
+var w=+document.getElementById('wind').value;
+var r=+document.getElementById('rain').value;
+var tn=+document.getElementById('tempMin').value;
+var tx=+document.getElementById('tempMax').value;
+var wn=document.getElementById('warning').value;
+var ct=document.getElementById('camperType').value;
+
+var score=0,conds=[];
+// 풍속
+if(w<=4){conds.push({c:'ok',t:'풍속 '+w+'m/s — 안전'});}
+else if(w<=7){conds.push({c:'warn',t:'풍속 '+w+'m/s — 미니 화로대 불안정, 중급 이상 권장'});score+=1;}
+else if(w<=10){conds.push({c:'bad',t:'풍속 '+w+'m/s — 모닥불 비추, 텐트 설치 어려움'});score+=2;}
+else{conds.push({c:'bad',t:'풍속 '+w+'m/s — 매우 위험, 텐트 파손 가능'});score+=4;}
+
+// 강수
+if(r===0){conds.push({c:'ok',t:'강수 없음'});}
+else if(r<=5){conds.push({c:'warn',t:'강수 '+r+'mm/h — 타프 있으면 가능'});score+=1;}
+else if(r<=20){conds.push({c:'bad',t:'강수 '+r+'mm/h — 비추, 사이트 침수 가능'});score+=3;}
+else{conds.push({c:'bad',t:'강수 '+r+'mm/h — 매우 위험, 계곡 접근 금지'});score+=5;}
+
+// 기온
+if(tn<-10){conds.push({c:'bad',t:'새벽 '+tn+'℃ — 극한 추위, 동계 전문 장비 필수'});score+=3;}
+else if(tn<0){conds.push({c:'warn',t:'새벽 '+tn+'℃ — 동계 침낭 필수'});score+=1;}
+else if(tn<10){conds.push({c:'ok',t:'새벽 '+tn+'℃ — 3계절 침낭+라이너'});}
+else{conds.push({c:'ok',t:'새벽 '+tn+'℃ — 편안'});}
+
+if(tx>33){conds.push({c:'warn',t:'낮 '+tx+'℃ — 폭염, 그늘 사이트 필수'});score+=1;}
+else if(tx>28){conds.push({c:'warn',t:'낮 '+tx+'℃ — 더위 주의'});score+=0;}
+else{conds.push({c:'ok',t:'낮 '+tx+'℃ — 활동 적정'});}
+
+// 경보
+var wmap={none:0,dry:1,wind:3,rain:3,snow:3,typhoon:10,cold:3,heat:2,fire:10};
+var wtxt={none:'',dry:'건조 — 산불 위험',wind:'강풍 — 텐트 위험',rain:'호우 — 침수 위험',snow:'대설 — 이동 위험',typhoon:'태풍 — 캠핑 금지',cold:'한파 — 저체온증 위험',heat:'폭염 — 열사병 위험',fire:'산불경보 — 화기 금지'};
+if(wn!=='none'){
+var cl=wmap[wn]>=5?'bad':(wmap[wn]>=2?'warn':'ok');
+conds.push({c:cl,t:'주의보/경보: '+wtxt[wn]});
+score+=wmap[wn];
+}
+
+// 숙련도 보정
+if(ct==='beginner')score+=1;
+if(ct==='advanced')score-=1;
+
+var verdict,summary,bg;
+if(score<=1){verdict='✅ GO';summary='캠핑 가능합니다. 즐거운 시간 되세요.';bg='go';}
+else if(score<=4){verdict='⏸ 대기 / 조건부';summary='일부 조건이 좋지 않습니다. 장비·사이트 선택 신중히 하세요.';bg='wait';}
+else{verdict='❌ 비추 / 취소';summary='안전상 캠핑 비권장. 일정 변경 또는 글램핑 대안 검토 바랍니다.';bg='no';}
+
+var rEl=document.getElementById('result');
+rEl.className='tool-result show '+bg;
+var vEl=document.getElementById('r-verdict');
+vEl.className='verdict '+bg;
+vEl.textContent=verdict;
+document.getElementById('r-summary').textContent=summary;
+var cEl=document.getElementById('r-conds');
+cEl.innerHTML='';
+conds.forEach(function(c){var li=document.createElement('li');li.className=c.c;li.textContent=c.t;cEl.appendChild(li);});
+rEl.scrollIntoView({behavior:'smooth',block:'start'});
+return false;
+}
+</script>
+
+<footer><div class="container">
+<div class="footer-grid">
+<div class="footer-brand"><a href="index.html" class="logo">고고캠프</a><p>민간 캠핑 정보 참고 서비스.</p></div>
+<div class="footer-col"><h4>도구</h4><ul><li><a href="tools.html">전체 도구</a></li><li><a href="tool-budget.html">예산 계산기</a></li><li><a href="tool-distance.html">거리·유류비</a></li></ul></div>
+<div class="footer-col"><h4>정보</h4><ul><li><a href="guide.html">가이드</a></li><li><a href="tips.html">팁</a></li><li><a href="faq.html">FAQ</a></li></ul></div>
+<div class="footer-col"><h4>사이트</h4><ul><li><a href="about.html">소개</a></li><li><a href="contact.html">문의</a></li><li><a href="terms.html">이용약관</a></li><li><a href="privacy.html">개인정보처리방침</a></li></ul></div>
+</div>
+<div class="footer-bottom"><p>© 2026 고고캠프.</p></div>
+</div></footer>
+
+<script src="js/mobile-nav.js?v=2" defer></script>
+</body>
+</html>

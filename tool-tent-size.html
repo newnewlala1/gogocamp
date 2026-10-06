@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>캠핑 텐트 크기 추천 — 인원·짐·기간 기반 자동 추천 | 고고캠프</title>
+<meta name="description" content="인원·짐 양·캠핑 기간 입력하면 추천 텐트 크기와 여유 공간을 자동 계산합니다.">
+<link rel="canonical" href="https://gogocamp.kr/tool-tent-size.html">
+<link rel="stylesheet" href="css/style.css?v=3">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700;800&display=swap" rel="stylesheet">
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"WebApplication","name":"텐트 크기 추천","applicationCategory":"Utility","operatingSystem":"Web","url":"https://gogocamp.kr/tool-tent-size.html"}</script>
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-8296789991007286" crossorigin="anonymous"></script>
+<style>
+.tool-wrap{max-width:720px;margin:0 auto;padding:24px 16px}
+.tool-wrap h1{font-size:1.6rem;margin:0 0 8px}
+.tool-lead{color:#6b7280;margin:0 0 24px}
+.tool-form{background:#fff;border:1px solid #e5e7eb;border-radius:12px;padding:20px}
+.tool-row{margin-bottom:16px}
+.tool-row label{display:block;font-weight:600;margin-bottom:6px;font-size:0.95rem}
+.tool-row input,.tool-row select{width:100%;padding:10px 12px;border:1px solid #d1d5db;border-radius:8px;font-size:1rem;box-sizing:border-box}
+.tool-row .hint{color:#9ca3af;font-size:0.82rem;margin-top:4px}
+.tool-btn{width:100%;padding:14px;background:#059669;color:#fff;border:0;border-radius:8px;font-size:1rem;font-weight:700;cursor:pointer;margin-top:8px}
+.tool-btn:hover{background:#047857}
+.tool-result{display:none;margin-top:20px;background:#f0fdf4;border:2px solid #059669;border-radius:12px;padding:20px}
+.tool-result.show{display:block}
+.rec-size{font-size:1.8rem;font-weight:800;color:#065f46;margin:0 0 12px}
+.sub-item{padding:8px 0;border-bottom:1px solid #d1fae5;font-size:0.95rem}
+.breadcrumb-tool{color:#6b7280;font-size:0.85rem;margin-bottom:16px}
+.breadcrumb-tool a{color:#059669;text-decoration:none}
+</style>
+</head>
+<body>
+
+<header><div class="container"><div class="header-inner"><a href="index.html" class="logo">고고<span class="accent">캠프</span></a><nav><ul class="nav-menu"><li><a href="index.html">홈</a></li><li><a href="campgrounds.html">캠핑장 찾기</a></li><li><a href="tools.html" class="active">도구</a></li><li><a href="guide.html">가이드</a></li><li><a href="tips.html">팁</a></li><li><a href="about.html">소개</a></li></ul></nav></div></div></header>
+
+<main>
+<div class="tool-wrap">
+<div class="breadcrumb-tool"><a href="index.html">홈</a> › <a href="tools.html">도구</a> › 텐트 크기 추천</div>
+<h1>텐트 크기 추천</h1>
+<p class="tool-lead">인원·짐·기간을 입력하면 적정 텐트 크기(인용·형태)를 추천합니다. 체류형엔 여유분, 백패킹엔 콤팩트형.</p>
+
+<form class="tool-form" onsubmit="return calcT(event)">
+<div class="tool-row">
+<label for="adults">성인 인원</label>
+<input type="number" id="adults" min="1" max="10" value="2" required>
+</div>
+<div class="tool-row">
+<label for="kids">아동 인원 (12세 이하)</label>
+<input type="number" id="kids" min="0" max="10" value="0" required>
+</div>
+<div class="tool-row">
+<label for="nights">캠핑 기간 (박)</label>
+<select id="nights">
+<option value="1" selected>당일·1박</option>
+<option value="2">2박</option>
+<option value="4">3~4박</option>
+<option value="7">5박 이상</option>
+</select>
+</div>
+<div class="tool-row">
+<label for="luggage">짐 양</label>
+<select id="luggage">
+<option value="light">최소 (백패킹 수준)</option>
+<option value="normal" selected>표준 (오토캠핑)</option>
+<option value="heavy">많음 (장비 많이 챙김)</option>
+</select>
+</div>
+<div class="tool-row">
+<label for="style">선호 유형</label>
+<select id="style">
+<option value="dome">돔텐트 (설치 쉬움)</option>
+<option value="tunnel">터널텐트 (공간 효율)</option>
+<option value="livingroom" selected>거실형 (여유·조리 공간)</option>
+<option value="tipi">티피 (감성)</option>
+<option value="roof">루프탑 (차량 상단)</option>
+</select>
+</div>
+<button type="submit" class="tool-btn">텐트 크기 추천</button>
+</form>
+
+<div class="tool-result" id="result">
+<div class="rec-size" id="r-size">-</div>
+<div class="sub-item" id="r-sqm"></div>
+<div class="sub-item" id="r-type"></div>
+<div class="sub-item" id="r-note"></div>
+<p style="font-size:0.85rem;color:#6b7280;margin-top:12px">※ 텐트 제조사마다 "N인용" 기준이 다릅니다. "N인용"은 침낭 N개가 겨우 들어가는 수치이므로, 실제 쾌적 사용엔 N+1~2 인용 권장합니다.</p>
+</div>
+
+<div style="margin-top:28px">
+<h3>관련 도구·가이드</h3>
+<ul>
+<li><a href="tool-sleeping-bag.html">침낭 등급 추천</a></li>
+<li><a href="tool-checklist.html">장비 체크리스트</a></li>
+<li><a href="camping-gear-first-year-guide.html">장비 입문 가이드</a></li>
+</ul>
+</div>
+</div>
+</main>
+
+<script>
+function calcT(e){
+e.preventDefault();
+var a=+document.getElementById('adults').value;
+var k=+document.getElementById('kids').value;
+var n=+document.getElementById('nights').value;
+var l=document.getElementById('luggage').value;
+var st=document.getElementById('style').value;
+
+var people=a+k*0.6;
+var size=Math.ceil(people+1);
+if(n>=2)size+=1;
+if(n>=4)size+=1;
+if(l==='heavy')size+=1;
+if(l==='light')size-=1;
+if(size<2)size=2;
+if(size>10)size=10;
+
+var sqm=Math.round(size*1.5*10)/10;
+var typeDesc={
+dome:'돔텐트 — 폴 2개 교차. 설치 10~15분. 초보 추천.',
+tunnel:'터널텐트 — 공간 효율 최고. 바람 측면 약함.',
+livingroom:'거실형 — 침실+거실 분리. 설치 20~40분. 가족 최적.',
+tipi:'티피 — 중앙 폴 1개. 감성 우수, 공간 제한적.',
+roof:'루프탑 — 차량 상단. 설치 3~5분. 이동 많은 분.'
+}[st];
+
+var note='';
+if(k>0&&n>=2)note='아이 동반 다박엔 거실형 또는 터널형이 유리합니다. ';
+if(l==='light')note+='짐 최소형엔 1인용 다운 or 알파인 텐트 추천.';
+if(st==='roof')note='루프탑은 차량 상단이라 인원 2~4명이 한계, 아이 동반 비추.';
+
+document.getElementById('r-size').textContent='▸ '+size+'인용 ('+st+')';
+document.getElementById('r-sqm').innerHTML='<strong>예상 바닥 면적:</strong> 약 '+sqm+'㎡';
+document.getElementById('r-type').innerHTML='<strong>유형 설명:</strong> '+typeDesc;
+document.getElementById('r-note').innerHTML='<strong>참고:</strong> '+(note||'적정 선택입니다.');
+document.getElementById('result').classList.add('show');
+document.getElementById('result').scrollIntoView({behavior:'smooth',block:'start'});
+return false;
+}
+</script>
+
+<footer><div class="container">
+<div class="footer-grid">
+<div class="footer-brand"><a href="index.html" class="logo">고고캠프</a><p>민간 캠핑 정보 참고 서비스.</p></div>
+<div class="footer-col"><h4>도구</h4><ul><li><a href="tools.html">전체 도구</a></li><li><a href="tool-sleeping-bag.html">침낭 등급</a></li><li><a href="tool-checklist.html">체크리스트</a></li></ul></div>
+<div class="footer-col"><h4>정보</h4><ul><li><a href="guide.html">가이드</a></li><li><a href="tips.html">팁</a></li><li><a href="faq.html">FAQ</a></li></ul></div>
+<div class="footer-col"><h4>사이트</h4><ul><li><a href="about.html">소개</a></li><li><a href="contact.html">문의</a></li><li><a href="terms.html">이용약관</a></li><li><a href="privacy.html">개인정보처리방침</a></li></ul></div>
+</div>
+<div class="footer-bottom"><p>© 2026 고고캠프.</p></div>
+</div></footer>
+
+<script src="js/mobile-nav.js?v=2" defer></script>
+</body>
+</html>

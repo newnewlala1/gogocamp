@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>캠핑 유형 비교 — 오토·글램핑·백패킹 조건별 자동 비교 | 고고캠프</title>
+<meta name="description" content="오토캠핑·글램핑·카라반·백패킹을 조건별로 비교합니다. 비용·준비·편의·자연 밀착도 자동 매트릭스.">
+<link rel="canonical" href="https://gogocamp.kr/tool-compare.html">
+<link rel="stylesheet" href="css/style.css?v=3">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700;800&display=swap" rel="stylesheet">
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"WebApplication","name":"캠핑 유형 비교","applicationCategory":"Utility","operatingSystem":"Web","url":"https://gogocamp.kr/tool-compare.html"}</script>
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-8296789991007286" crossorigin="anonymous"></script>
+<style>
+.tool-wrap{max-width:960px;margin:0 auto;padding:24px 16px}
+.tool-wrap h1{font-size:1.6rem;margin:0 0 8px}
+.tool-lead{color:#6b7280;margin:0 0 24px}
+.tool-form{background:#fff;border:1px solid #e5e7eb;border-radius:12px;padding:20px}
+.tool-row{margin-bottom:16px}
+.tool-row label{display:block;font-weight:600;margin-bottom:6px;font-size:0.95rem}
+.weight-box{display:flex;gap:8px;align-items:center}
+.weight-box input{flex:1}
+.weight-box .val{min-width:40px;text-align:right;font-weight:700;color:#059669}
+.tool-btn{width:100%;padding:14px;background:#059669;color:#fff;border:0;border-radius:8px;font-size:1rem;font-weight:700;cursor:pointer;margin-top:8px}
+.tool-btn:hover{background:#047857}
+.tool-result{display:none;margin-top:20px;background:#fff;border:1px solid #e5e7eb;border-radius:12px;padding:20px}
+.tool-result.show{display:block}
+.score-row{display:flex;align-items:center;gap:12px;padding:12px 0;border-bottom:1px solid #f3f4f6}
+.score-row .name{min-width:100px;font-weight:700}
+.score-bar{flex:1;height:16px;background:#f3f4f6;border-radius:8px;overflow:hidden}
+.score-bar>div{height:100%;background:#059669;transition:width 0.5s}
+.score-val{min-width:50px;text-align:right;font-weight:700;color:#059669}
+.winner{background:#f0fdf4;border:2px solid #059669;border-radius:8px;padding:12px;margin-top:16px}
+.detail-table{width:100%;border-collapse:collapse;margin-top:16px;font-size:0.9rem}
+.detail-table th,.detail-table td{padding:8px;border:1px solid #e5e7eb;text-align:left}
+.detail-table th{background:#f9fafb;font-weight:700}
+.breadcrumb-tool{color:#6b7280;font-size:0.85rem;margin-bottom:16px}
+.breadcrumb-tool a{color:#059669;text-decoration:none}
+</style>
+</head>
+<body>
+
+<header><div class="container"><div class="header-inner"><a href="index.html" class="logo">고고<span class="accent">캠프</span></a><nav><ul class="nav-menu"><li><a href="index.html">홈</a></li><li><a href="campgrounds.html">캠핑장 찾기</a></li><li><a href="tools.html" class="active">도구</a></li><li><a href="guide.html">가이드</a></li><li><a href="tips.html">팁</a></li><li><a href="about.html">소개</a></li></ul></nav></div></div></header>
+
+<main>
+<div class="tool-wrap">
+<div class="breadcrumb-tool"><a href="index.html">홈</a> › <a href="tools.html">도구</a> › 캠핑 유형 비교</div>
+<h1>캠핑 유형 비교 매트릭스</h1>
+<p class="tool-lead">본인 우선순위 가중치를 조정하면 가장 맞는 캠핑 유형을 추천합니다. 오토·글램핑·카라반·백패킹 4가지 비교.</p>
+
+<form class="tool-form" onsubmit="return calcCmp(event)">
+<div class="tool-row">
+<label>비용 민감도 <span style="color:#059669">(저렴한 걸 원함)</span></label>
+<div class="weight-box"><input type="range" id="w1" min="0" max="10" value="7" oninput="document.getElementById('v1').textContent=this.value"><span class="val" id="v1">7</span></div>
+</div>
+<div class="tool-row">
+<label>편의성 중요도 <span style="color:#059669">(쉬움·편안함)</span></label>
+<div class="weight-box"><input type="range" id="w2" min="0" max="10" value="5" oninput="document.getElementById('v2').textContent=this.value"><span class="val" id="v2">5</span></div>
+</div>
+<div class="tool-row">
+<label>감성 중요도 <span style="color:#059669">(분위기·사진)</span></label>
+<div class="weight-box"><input type="range" id="w3" min="0" max="10" value="6" oninput="document.getElementById('v3').textContent=this.value"><span class="val" id="v3">6</span></div>
+</div>
+<div class="tool-row">
+<label>자연 밀착도 <span style="color:#059669">(진짜 캠핑)</span></label>
+<div class="weight-box"><input type="range" id="w4" min="0" max="10" value="5" oninput="document.getElementById('v4').textContent=this.value"><span class="val" id="v4">5</span></div>
+</div>
+<div class="tool-row">
+<label>준비 부담 X <span style="color:#059669">(짐 적게)</span></label>
+<div class="weight-box"><input type="range" id="w5" min="0" max="10" value="4" oninput="document.getElementById('v5').textContent=this.value"><span class="val" id="v5">4</span></div>
+</div>
+<button type="submit" class="tool-btn">최적 캠핑 유형 추천</button>
+</form>
+
+<div class="tool-result" id="result">
+<h3 style="margin:0 0 16px">종합 점수</h3>
+<div id="scores"></div>
+<div class="winner" id="winner"></div>
+
+<table class="detail-table">
+<thead><tr><th>항목</th><th>오토</th><th>글램핑</th><th>카라반</th><th>백패킹</th></tr></thead>
+<tbody>
+<tr><td>초기 장비 비용</td><td>50~150만</td><td>0</td><td>500만~</td><td>80~200만</td></tr>
+<tr><td>1박 사이트비(2인)</td><td>2~5만</td><td>12~25만</td><td>5~15만</td><td>1~2만</td></tr>
+<tr><td>준비 소요시간</td><td>3시간</td><td>30분</td><td>1시간</td><td>5시간</td></tr>
+<tr><td>현장 설영</td><td>1~2시간</td><td>0</td><td>10분</td><td>30분</td></tr>
+<tr><td>편의성</td><td>중간</td><td>최상</td><td>상</td><td>최하</td></tr>
+<tr><td>감성·사진</td><td>상</td><td>상</td><td>중</td><td>최상</td></tr>
+<tr><td>자연 밀착도</td><td>상</td><td>중</td><td>중</td><td>최상</td></tr>
+<tr><td>기상 영향</td><td>큼</td><td>작음</td><td>작음</td><td>큼</td></tr>
+</tbody>
+</table>
+</div>
+</div>
+</main>
+
+<script>
+// 각 유형 특성 점수 (0~10)
+var types={
+auto:{name:'오토캠핑',cost:7,conv:5,mood:7,nature:8,prep:5},
+glamping:{name:'글램핑',cost:3,conv:10,mood:7,nature:5,prep:10},
+caravan:{name:'카라반',cost:5,conv:8,mood:6,nature:5,prep:8},
+backpack:{name:'백패킹',cost:9,conv:2,mood:9,nature:10,prep:2}
+};
+function calcCmp(e){
+e.preventDefault();
+var w1=+document.getElementById('w1').value;
+var w2=+document.getElementById('w2').value;
+var w3=+document.getElementById('w3').value;
+var w4=+document.getElementById('w4').value;
+var w5=+document.getElementById('w5').value;
+var total=w1+w2+w3+w4+w5;
+if(total===0)total=1;
+
+var scores=[];
+for(var k in types){
+var t=types[k];
+var s=(t.cost*w1+t.conv*w2+t.mood*w3+t.nature*w4+t.prep*w5)/total;
+scores.push({key:k,name:t.name,score:Math.round(s*10)/10});
+}
+scores.sort(function(a,b){return b.score-a.score});
+
+var html='';
+scores.forEach(function(s){
+var pct=(s.score/10)*100;
+html+='<div class="score-row"><div class="name">'+s.name+'</div><div class="score-bar"><div style="width:'+pct+'%"></div></div><div class="score-val">'+s.score+'</div></div>';
+});
+document.getElementById('scores').innerHTML=html;
+
+var top=scores[0];
+var tips={
+auto:'오토캠핑: 입문 후 가장 널리 쓰이는 형태. 장비 입문 자본 50만원대부터 시작 가능.',
+glamping:'글램핑: 장비 부담 없이 캠핑 분위기. 커플·가족 입문·우천 대비 추천.',
+caravan:'카라반: 완전 실내·냉난방·주방. 초기 자본 큼. 자주 가면 ROI 가성비 OK.',
+backpack:'백패킹: 짐 가볍고 자연 밀착 최상. 체력·장비 지식 필요.'
+};
+document.getElementById('winner').innerHTML='<strong>▸ 추천: '+top.name+' (점수 '+top.score+')</strong><br>'+tips[top.key];
+document.getElementById('result').classList.add('show');
+document.getElementById('result').scrollIntoView({behavior:'smooth',block:'start'});
+return false;
+}
+</script>
+
+<footer><div class="container">
+<div class="footer-grid">
+<div class="footer-brand"><a href="index.html" class="logo">고고캠프</a><p>민간 캠핑 정보 참고 서비스.</p></div>
+<div class="footer-col"><h4>도구</h4><ul><li><a href="tools.html">전체 도구</a></li><li><a href="tool-budget.html">예산 계산기</a></li><li><a href="tool-checklist.html">체크리스트</a></li></ul></div>
+<div class="footer-col"><h4>정보</h4><ul><li><a href="guide.html">가이드</a></li><li><a href="tips.html">팁</a></li><li><a href="faq.html">FAQ</a></li></ul></div>
+<div class="footer-col"><h4>사이트</h4><ul><li><a href="about.html">소개</a></li><li><a href="contact.html">문의</a></li><li><a href="terms.html">이용약관</a></li><li><a href="privacy.html">개인정보처리방침</a></li></ul></div>
+</div>
+<div class="footer-bottom"><p>© 2026 고고캠프.</p></div>
+</div></footer>
+
+<script src="js/mobile-nav.js?v=2" defer></script>
+</body>
+</html>

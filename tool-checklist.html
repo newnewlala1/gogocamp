@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>캠핑 장비 체크리스트 생성 — 계절·유형·인원 맞춤 자동 | 고고캠프</title>
+<meta name="description" content="계절·캠핑유형·인원·숙박기간 입력하면 맞춤 체크리스트를 자동 생성합니다. 카테고리별 정리.">
+<link rel="canonical" href="https://gogocamp.kr/tool-checklist.html">
+<link rel="stylesheet" href="css/style.css?v=3">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700;800&display=swap" rel="stylesheet">
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"WebApplication","name":"캠핑 체크리스트 생성","applicationCategory":"Utility","operatingSystem":"Web","url":"https://gogocamp.kr/tool-checklist.html"}</script>
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-8296789991007286" crossorigin="anonymous"></script>
+<style>
+.tool-wrap{max-width:720px;margin:0 auto;padding:24px 16px}
+.tool-wrap h1{font-size:1.6rem;margin:0 0 8px}
+.tool-lead{color:#6b7280;margin:0 0 24px}
+.tool-form{background:#fff;border:1px solid #e5e7eb;border-radius:12px;padding:20px}
+.tool-row{margin-bottom:16px}
+.tool-row label{display:block;font-weight:600;margin-bottom:6px;font-size:0.95rem}
+.tool-row input,.tool-row select{width:100%;padding:10px 12px;border:1px solid #d1d5db;border-radius:8px;font-size:1rem;box-sizing:border-box}
+.tool-btn{width:100%;padding:14px;background:#059669;color:#fff;border:0;border-radius:8px;font-size:1rem;font-weight:700;cursor:pointer;margin-top:8px}
+.tool-btn:hover{background:#047857}
+.cl-result{display:none;margin-top:20px}
+.cl-result.show{display:block}
+.cl-cat{background:#fff;border:1px solid #e5e7eb;border-radius:10px;padding:16px;margin-bottom:12px}
+.cl-cat h3{margin:0 0 10px;font-size:1.05rem;color:#065f46}
+.cl-item{display:flex;align-items:center;gap:8px;padding:4px 0;font-size:0.95rem}
+.cl-item input{margin:0}
+.cl-item label{font-weight:400;margin:0;cursor:pointer}
+.breadcrumb-tool{color:#6b7280;font-size:0.85rem;margin-bottom:16px}
+.breadcrumb-tool a{color:#059669;text-decoration:none}
+.print-btn{display:inline-block;padding:8px 16px;background:#fff;border:1px solid #059669;color:#059669;border-radius:6px;font-weight:600;cursor:pointer;margin-top:12px;text-decoration:none}
+@media print{header,footer,.tool-form,.tool-lead,.breadcrumb-tool,.print-btn{display:none}.cl-result{display:block !important}}
+</style>
+</head>
+<body>
+
+<header><div class="container"><div class="header-inner"><a href="index.html" class="logo">고고<span class="accent">캠프</span></a><nav><ul class="nav-menu"><li><a href="index.html">홈</a></li><li><a href="campgrounds.html">캠핑장 찾기</a></li><li><a href="tools.html" class="active">도구</a></li><li><a href="guide.html">가이드</a></li><li><a href="tips.html">팁</a></li><li><a href="about.html">소개</a></li></ul></nav></div></div></header>
+
+<main>
+<div class="tool-wrap">
+<div class="breadcrumb-tool"><a href="index.html">홈</a> › <a href="tools.html">도구</a> › 장비 체크리스트 생성</div>
+<h1>캠핑 장비 체크리스트 생성</h1>
+<p class="tool-lead">계절·유형·인원·기간에 맞춰 체크리스트를 자동 생성합니다. 체크해가며 짐 정리하세요. 인쇄 가능.</p>
+
+<form class="tool-form" onsubmit="return genCL(event)">
+<div class="tool-row">
+<label for="season">계절</label>
+<select id="season">
+<option value="spring">봄 (3~5월)</option>
+<option value="summer" selected>여름 (6~8월)</option>
+<option value="autumn">가을 (9~11월)</option>
+<option value="winter">겨울 (12~2월)</option>
+</select>
+</div>
+<div class="tool-row">
+<label for="type">캠핑 유형</label>
+<select id="type">
+<option value="auto" selected>오토캠핑</option>
+<option value="glamping">글램핑 (장비 적음)</option>
+<option value="backpack">백패킹</option>
+<option value="caravan">카라반</option>
+</select>
+</div>
+<div class="tool-row">
+<label for="family">동반자</label>
+<select id="family">
+<option value="solo">솔로</option>
+<option value="couple" selected>2인·커플</option>
+<option value="family">가족 (아이 포함)</option>
+<option value="pet">반려동물 동반</option>
+<option value="group">단체 4인+</option>
+</select>
+</div>
+<div class="tool-row">
+<label for="nights2">숙박 일수</label>
+<select id="nights2">
+<option value="1" selected>1박</option>
+<option value="2">2박</option>
+<option value="3">3박 이상</option>
+</select>
+</div>
+<button type="submit" class="tool-btn">체크리스트 생성</button>
+</form>
+
+<div class="cl-result" id="result">
+<a href="#" class="print-btn" onclick="window.print();return false">🖨️ 인쇄하기</a>
+<div id="cl-list"></div>
+</div>
+
+<div style="margin-top:28px">
+<h3>관련 도구·가이드</h3>
+<ul>
+<li><a href="tool-budget.html">예산 계산기</a></li>
+<li><a href="camping-gear-first-year-guide.html">입문자 장비 가이드</a></li>
+<li><a href="tip-camping-packup.html">철수 30분 가이드</a></li>
+</ul>
+</div>
+</div>
+</main>
+
+<script>
+var CL={
+tent:['텐트 본체','폴·팩·스트링','그라운드시트','타프','타프 폴','고무망치'],
+sleep:['침낭','매트','베개','침낭 라이너'],
+light:['메인 랜턴','헤드랜턴','예비 배터리'],
+cook:['버너','가스 카트리지','코펠·냄비','프라이팬','집게·국자','도마·칼','식기·수저','컵·머그','쿨러·아이스팩','식수통','키친타월','수세미·주방세제'],
+fire:['화로대','장작','착화제','토치 라이터','소화용 물 2L'],
+cloth:['베이스 레이어','미드 레이어(플리스)','아우터·방풍 자켓','잠옷·실내복','여벌 양말','속옷'],
+hygiene:['세면도구','수건','휴지·물티슈','썬크림','치약·칫솔'],
+safe:['구급함(연고·반창고·해열제)','비상 라이터','비상 식량','휴대폰 보조배터리','우비·방수백'],
+winter:['동계 침낭 (–10℃+)','발열 매트','핫팩 6개+','비니·장갑·목도리','롱패딩','전기 장판 (전기 사이트)','일산화탄소 경보기'],
+summer:['USB 선풍기','얼음팩 세트','모기 기피제','모기장','썬크림 SPF50+','수영복·아쿠아슈즈'],
+spring:['마스크 (황사·꽃가루)','알레르기약','가벼운 레이어드 의류'],
+autumn:['얇은 다운','핫팩 2~4개','마실 보온병 (차·커피)'],
+rain:['우비 2개','장화','큰 비닐 봉투','수건 여유분','방수 백'],
+family:['아이 침낭','익숙한 인형·담요','어린이 간식','아이용 의자','아이 비상약','아이 멀미약','야광 팔찌(밤)','구명조끼(물놀이)'],
+pet:['리드줄 2개','하네스','배변봉투 20장+','사료·간식','물그릇','강아지 담요','예방접종 증명서 사진','휴대용 물통'],
+backpack:['경량 1인 텐트','경량 침낭·에어매트','경량 1구 버너','경량 코펠','경량 식량(동결건조)','스틱'],
+glamping:['실내복','슬리퍼','보조배터리','간식·간단한 음료','세면도구']
+};
+var CAT={
+tent:'텐트·주거',sleep:'수면',light:'조명·전원',cook:'조리·주방',fire:'화기·BBQ',cloth:'의류',hygiene:'위생',safe:'안전·비상',
+winter:'겨울 특화',summer:'여름 특화',spring:'봄 특화',autumn:'가을 특화',rain:'우천 대비',
+family:'가족 동반',pet:'반려동물 동반',backpack:'백패킹 특화',glamping:'글램핑 특화'
+};
+function genCL(e){
+e.preventDefault();
+var ss=document.getElementById('season').value;
+var ty=document.getElementById('type').value;
+var fm=document.getElementById('family').value;
+var nt=+document.getElementById('nights2').value;
+
+var cats=[];
+if(ty==='glamping'){cats.push('glamping','sleep','cloth','hygiene','safe');}
+else if(ty==='backpack'){cats.push('backpack','sleep','light','cloth','hygiene','safe');}
+else{cats.push('tent','sleep','light','cook','fire','cloth','hygiene','safe');}
+cats.push(ss);
+if(ss==='summer')cats.push('rain');
+if(ss==='spring'||ss==='autumn')cats.push('rain');
+if(fm==='family')cats.push('family');
+if(fm==='pet')cats.push('pet');
+
+var html='';
+cats.forEach(function(c){
+if(!CL[c])return;
+html+='<div class="cl-cat"><h3>'+CAT[c]+'</h3>';
+CL[c].forEach(function(it,i){
+var id='it_'+c+'_'+i;
+html+='<div class="cl-item"><input type="checkbox" id="'+id+'"><label for="'+id+'">'+it+'</label></div>';
+});
+html+='</div>';
+});
+if(nt>=2){html+='<div class="cl-cat"><h3>다박 추가 (여유분)</h3><div class="cl-item"><input type="checkbox" id="x1"><label for="x1">여벌 옷 1세트 추가</label></div><div class="cl-item"><input type="checkbox" id="x2"><label for="x2">식재료 여유분 (예상량의 1.3배)</label></div><div class="cl-item"><input type="checkbox" id="x3"><label for="x3">예비 배터리·충전기</label></div></div>';}
+document.getElementById('cl-list').innerHTML=html;
+document.getElementById('result').classList.add('show');
+document.getElementById('result').scrollIntoView({behavior:'smooth',block:'start'});
+return false;
+}
+</script>
+
+<footer><div class="container">
+<div class="footer-grid">
+<div class="footer-brand"><a href="index.html" class="logo">고고캠프</a><p>민간 캠핑 정보 참고 서비스.</p></div>
+<div class="footer-col"><h4>도구</h4><ul><li><a href="tools.html">전체 도구</a></li><li><a href="tool-budget.html">예산 계산기</a></li><li><a href="tool-tent-size.html">텐트 크기</a></li></ul></div>
+<div class="footer-col"><h4>정보</h4><ul><li><a href="guide.html">가이드</a></li><li><a href="tips.html">팁</a></li><li><a href="faq.html">FAQ</a></li></ul></div>
+<div class="footer-col"><h4>사이트</h4><ul><li><a href="about.html">소개</a></li><li><a href="contact.html">문의</a></li><li><a href="terms.html">이용약관</a></li><li><a href="privacy.html">개인정보처리방침</a></li></ul></div>
+</div>
+<div class="footer-bottom"><p>© 2026 고고캠프.</p></div>
+</div></footer>
+
+<script src="js/mobile-nav.js?v=2" defer></script>
+</body>
+</html>

@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>캠핑 예산 계산기 — 인원·일수·유형 입력 자동 계산 | 고고캠프</title>
+<meta name="description" content="캠핑 예산을 자동 계산합니다. 인원·일수·캠핑 유형·시즌·거리 입력하면 교통비·사이트비·식재료·장비까지 합산 결과를 즉시 보여줍니다. 서버 전송 없음.">
+<link rel="canonical" href="https://gogocamp.kr/tool-budget.html">
+<link rel="stylesheet" href="css/style.css?v=3">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700;800&display=swap" rel="stylesheet">
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"WebApplication","name":"캠핑 예산 계산기","applicationCategory":"Utility","operatingSystem":"Web","url":"https://gogocamp.kr/tool-budget.html"}</script>
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-8296789991007286" crossorigin="anonymous"></script>
+<style>
+.tool-wrap{max-width:720px;margin:0 auto;padding:24px 16px}
+.tool-wrap h1{font-size:1.6rem;margin:0 0 8px}
+.tool-lead{color:#6b7280;margin:0 0 24px}
+.tool-form{background:#fff;border:1px solid #e5e7eb;border-radius:12px;padding:20px}
+.tool-row{margin-bottom:16px}
+.tool-row label{display:block;font-weight:600;margin-bottom:6px;font-size:0.95rem}
+.tool-row input,.tool-row select{width:100%;padding:10px 12px;border:1px solid #d1d5db;border-radius:8px;font-size:1rem;box-sizing:border-box}
+.tool-row .hint{color:#9ca3af;font-size:0.82rem;margin-top:4px}
+.tool-btn{width:100%;padding:14px;background:#059669;color:#fff;border:0;border-radius:8px;font-size:1rem;font-weight:700;cursor:pointer;margin-top:8px}
+.tool-btn:hover{background:#047857}
+.tool-result{display:none;margin-top:20px;background:#f0fdf4;border:2px solid #059669;border-radius:12px;padding:20px}
+.tool-result.show{display:block}
+.tool-result h2{margin:0 0 12px;font-size:1.2rem;color:#065f46}
+.tool-result table{width:100%;border-collapse:collapse}
+.tool-result td{padding:8px 4px;border-bottom:1px solid #d1fae5;font-size:0.95rem}
+.tool-result td:last-child{text-align:right;font-weight:700}
+.tool-result .total{font-size:1.3rem;color:#059669;font-weight:800}
+.tool-notice{background:#fffbeb;border:1px solid #fde68a;border-radius:8px;padding:12px;margin-top:16px;font-size:0.85rem;color:#78350f}
+.breadcrumb-tool{color:#6b7280;font-size:0.85rem;margin-bottom:16px}
+.breadcrumb-tool a{color:#059669;text-decoration:none}
+</style>
+</head>
+<body>
+
+<header><div class="container"><div class="header-inner"><a href="index.html" class="logo">고고<span class="accent">캠프</span></a><nav><ul class="nav-menu"><li><a href="index.html">홈</a></li><li><a href="campgrounds.html">캠핑장 찾기</a></li><li><a href="tools.html" class="active">도구</a></li><li><a href="guide.html">가이드</a></li><li><a href="tips.html">팁</a></li><li><a href="about.html">소개</a></li></ul></nav></div></div></header>
+
+<main>
+<div class="tool-wrap">
+<div class="breadcrumb-tool"><a href="index.html">홈</a> › <a href="tools.html">도구</a> › 캠핑 예산 계산기</div>
+<h1>캠핑 예산 계산기</h1>
+<p class="tool-lead">인원·일수·캠핑 유형·거리를 입력하면 총 예산을 자동 계산합니다. 입력값은 서버로 전송되지 않습니다.</p>
+
+<form class="tool-form" id="budgetForm" onsubmit="return calcBudget(event)">
+<div class="tool-row">
+<label for="people">인원 수</label>
+<input type="number" id="people" min="1" max="20" value="2" required>
+</div>
+<div class="tool-row">
+<label for="nights">숙박 일수 (박)</label>
+<input type="number" id="nights" min="1" max="14" value="1" required>
+</div>
+<div class="tool-row">
+<label for="type">캠핑 유형</label>
+<select id="type">
+<option value="auto">오토캠핑 (텐트)</option>
+<option value="glamping">글램핑</option>
+<option value="caravan">카라반·트레일러</option>
+<option value="backpack">백패킹</option>
+</select>
+</div>
+<div class="tool-row">
+<label for="season">시즌</label>
+<select id="season">
+<option value="peak">성수기 (7~8월·황금연휴·단풍)</option>
+<option value="normal" selected>준성수기 (봄·가을 평일)</option>
+<option value="off">비수기 (겨울·장마)</option>
+</select>
+</div>
+<div class="tool-row">
+<label for="distance">왕복 거리 (km)</label>
+<input type="number" id="distance" min="0" max="2000" value="200" required>
+<div class="hint">서울-강원 양양 약 400km, 서울-제주 공항까지 카페리 600km 기준</div>
+</div>
+<div class="tool-row">
+<label for="fuelEff">차량 연비 (km/L)</label>
+<input type="number" id="fuelEff" min="5" max="30" step="0.1" value="10" required>
+</div>
+<div class="tool-row">
+<label for="fuelPrice">유가 (원/L)</label>
+<input type="number" id="fuelPrice" min="1000" max="3000" value="1750" required>
+</div>
+<button type="submit" class="tool-btn">예산 계산하기</button>
+</form>
+
+<div class="tool-result" id="result">
+<h2>예상 총 예산</h2>
+<table>
+<tr><td>⛽ 유류비 (왕복)</td><td id="r-fuel">-</td></tr>
+<tr><td>🛣️ 고속도로 톨 (왕복 예상)</td><td id="r-toll">-</td></tr>
+<tr><td>🏕️ 캠핑장·숙박비</td><td id="r-site">-</td></tr>
+<tr><td>🍖 식재료·조리 (인원·일수)</td><td id="r-food">-</td></tr>
+<tr><td>🔥 장작·소모품</td><td id="r-supplies">-</td></tr>
+<tr><td>🧺 기타 (주차·입장료 등)</td><td id="r-misc">-</td></tr>
+<tr><td class="total">💰 총 예산</td><td class="total" id="r-total">-</td></tr>
+</table>
+<div class="tool-notice"><strong>참고:</strong> 지역·시즌·업체별 변동이 큽니다. 실제 금액은 ±30% 범위에서 달라질 수 있으며, 캠핑장 예약 시 공식 가격을 재확인하세요.</div>
+</div>
+
+<div style="margin-top:28px">
+<h3>관련 도구·가이드</h3>
+<ul>
+<li><a href="tool-distance.html">거리·유류비 계산기</a></li>
+<li><a href="tool-checklist.html">장비 체크리스트 생성</a></li>
+<li><a href="camping-budget-guide.html">예산 계획 가이드</a></li>
+</ul>
+</div>
+</div>
+</main>
+
+<script>
+function calcBudget(e){
+e.preventDefault();
+var p=+document.getElementById('people').value;
+var n=+document.getElementById('nights').value;
+var t=document.getElementById('type').value;
+var s=document.getElementById('season').value;
+var d=+document.getElementById('distance').value;
+var fe=+document.getElementById('fuelEff').value;
+var fp=+document.getElementById('fuelPrice').value;
+
+var fuel=Math.round(d/fe*fp);
+var toll=Math.round(d*55);
+var siteBase={auto:30000,glamping:160000,caravan:200000,backpack:15000}[t];
+var seasonMul={peak:1.5,normal:1,off:0.75}[s];
+var site=Math.round(siteBase*n*seasonMul);
+var food=Math.round(p*n*25000*(t==='backpack'?0.6:1));
+var supplies=Math.round(n*(t==='glamping'||t==='caravan'?15000:28000));
+var misc=Math.round(p*n*3000);
+var total=fuel+toll+site+food+supplies+misc;
+
+var fmt=function(v){return v.toLocaleString('ko-KR')+'원'};
+document.getElementById('r-fuel').textContent=fmt(fuel);
+document.getElementById('r-toll').textContent=fmt(toll);
+document.getElementById('r-site').textContent=fmt(site);
+document.getElementById('r-food').textContent=fmt(food);
+document.getElementById('r-supplies').textContent=fmt(supplies);
+document.getElementById('r-misc').textContent=fmt(misc);
+document.getElementById('r-total').textContent=fmt(total);
+document.getElementById('result').classList.add('show');
+document.getElementById('result').scrollIntoView({behavior:'smooth',block:'start'});
+return false;
+}
+</script>
+
+<footer><div class="container">
+<div class="footer-grid">
+<div class="footer-brand"><a href="index.html" class="logo">고고캠프</a><p>민간 캠핑 정보 참고 서비스.</p></div>
+<div class="footer-col"><h4>도구</h4><ul><li><a href="tools.html">전체 도구</a></li><li><a href="tool-distance.html">거리·유류비</a></li><li><a href="tool-checklist.html">장비 체크리스트</a></li></ul></div>
+<div class="footer-col"><h4>정보</h4><ul><li><a href="guide.html">가이드</a></li><li><a href="tips.html">팁</a></li><li><a href="faq.html">FAQ</a></li></ul></div>
+<div class="footer-col"><h4>사이트</h4><ul><li><a href="about.html">소개</a></li><li><a href="contact.html">문의</a></li><li><a href="terms.html">이용약관</a></li><li><a href="privacy.html">개인정보처리방침</a></li></ul></div>
+</div>
+<div class="footer-bottom"><p>© 2026 고고캠프.</p></div>
+</div></footer>
+
+<script src="js/mobile-nav.js?v=2" defer></script>
+</body>
+</html>

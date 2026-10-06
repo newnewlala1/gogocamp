@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>캠핑 침낭 온도 등급 추천 — 지역·시기 기반 자동 추천 | 고고캠프</title>
+<meta name="description" content="지역·시기·캠핑유형을 입력하면 필요한 침낭 Comfort 등급을 추천합니다. 해발·숙박 환경 반영.">
+<link rel="canonical" href="https://gogocamp.kr/tool-sleeping-bag.html">
+<link rel="stylesheet" href="css/style.css?v=3">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700;800&display=swap" rel="stylesheet">
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"WebApplication","name":"침낭 온도 등급 추천","applicationCategory":"Utility","operatingSystem":"Web","url":"https://gogocamp.kr/tool-sleeping-bag.html"}</script>
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-8296789991007286" crossorigin="anonymous"></script>
+<style>
+.tool-wrap{max-width:720px;margin:0 auto;padding:24px 16px}
+.tool-wrap h1{font-size:1.6rem;margin:0 0 8px}
+.tool-lead{color:#6b7280;margin:0 0 24px}
+.tool-form{background:#fff;border:1px solid #e5e7eb;border-radius:12px;padding:20px}
+.tool-row{margin-bottom:16px}
+.tool-row label{display:block;font-weight:600;margin-bottom:6px;font-size:0.95rem}
+.tool-row input,.tool-row select{width:100%;padding:10px 12px;border:1px solid #d1d5db;border-radius:8px;font-size:1rem;box-sizing:border-box}
+.tool-row .hint{color:#9ca3af;font-size:0.82rem;margin-top:4px}
+.tool-btn{width:100%;padding:14px;background:#059669;color:#fff;border:0;border-radius:8px;font-size:1rem;font-weight:700;cursor:pointer;margin-top:8px}
+.tool-btn:hover{background:#047857}
+.tool-result{display:none;margin-top:20px;background:#f0fdf4;border:2px solid #059669;border-radius:12px;padding:20px}
+.tool-result.show{display:block}
+.rec-grade{font-size:2rem;font-weight:800;color:#065f46;margin:0 0 12px}
+.sub-item{padding:8px 0;border-bottom:1px solid #d1fae5;font-size:0.95rem}
+.sub-item strong{color:#065f46}
+.breadcrumb-tool{color:#6b7280;font-size:0.85rem;margin-bottom:16px}
+.breadcrumb-tool a{color:#059669;text-decoration:none}
+</style>
+</head>
+<body>
+
+<header><div class="container"><div class="header-inner"><a href="index.html" class="logo">고고<span class="accent">캠프</span></a><nav><ul class="nav-menu"><li><a href="index.html">홈</a></li><li><a href="campgrounds.html">캠핑장 찾기</a></li><li><a href="tools.html" class="active">도구</a></li><li><a href="guide.html">가이드</a></li><li><a href="tips.html">팁</a></li><li><a href="about.html">소개</a></li></ul></nav></div></div></header>
+
+<main>
+<div class="tool-wrap">
+<div class="breadcrumb-tool"><a href="index.html">홈</a> › <a href="tools.html">도구</a> › 침낭 온도 등급 추천</div>
+<h1>침낭 온도 등급 추천</h1>
+<p class="tool-lead">예상 밤 최저 기온에 안전 마진을 더해 Comfort 등급을 추천합니다.</p>
+
+<form class="tool-form" onsubmit="return calcSB(event)">
+<div class="tool-row">
+<label for="region">지역</label>
+<select id="region">
+<option value="metro">수도권·충청 평지</option>
+<option value="gangwon">강원 산악·동해</option>
+<option value="jungsan">제주 중산간</option>
+<option value="jeju-sea">제주 해안</option>
+<option value="south-sea">남해안·전라 남부</option>
+<option value="nat-park">국립공원 야영장(해발 400m+)</option>
+</select>
+</div>
+<div class="tool-row">
+<label for="month">예상 캠핑 월</label>
+<select id="month">
+<option value="1">1월</option>
+<option value="2">2월</option>
+<option value="3">3월</option>
+<option value="4">4월</option>
+<option value="5" selected>5월</option>
+<option value="6">6월</option>
+<option value="7">7월</option>
+<option value="8">8월</option>
+<option value="9">9월</option>
+<option value="10">10월</option>
+<option value="11">11월</option>
+<option value="12">12월</option>
+</select>
+</div>
+<div class="tool-row">
+<label for="shelter">숙박 환경</label>
+<select id="shelter">
+<option value="tent">일반 텐트</option>
+<option value="tent-floor">텐트 + 발열 매트</option>
+<option value="glamping">글램핑·카라반 (실내 난방)</option>
+</select>
+</div>
+<div class="tool-row">
+<label for="chill">본인 추위 민감도</label>
+<select id="chill">
+<option value="low">잘 안 추워하는 편</option>
+<option value="mid" selected>보통</option>
+<option value="high">추위 많이 탄다</option>
+</select>
+</div>
+<button type="submit" class="tool-btn">침낭 등급 추천</button>
+</form>
+
+<div class="tool-result" id="result">
+<div class="rec-grade" id="r-grade">-</div>
+<div class="sub-item"><strong>예상 밤 최저 기온:</strong> <span id="r-temp">-</span></div>
+<div class="sub-item"><strong>권장 Comfort 등급:</strong> <span id="r-comfort">-</span></div>
+<div class="sub-item"><strong>침낭 유형 추천:</strong> <span id="r-type">-</span></div>
+<div class="sub-item"><strong>추가 장비 제안:</strong> <span id="r-extra">-</span></div>
+<p style="font-size:0.85rem;color:#6b7280;margin-top:12px">※ 침낭 라벨의 Limit·Extreme이 아닌 <strong>Comfort</strong> 등급 기준입니다. 침낭 제조사별 측정 방식 차이가 있으니 3~5℃ 여유를 두세요.</p>
+</div>
+
+<div style="margin-top:28px">
+<h3>관련 도구·가이드</h3>
+<ul>
+<li><a href="tool-tent-size.html">텐트 크기 추천</a></li>
+<li><a href="tool-checklist.html">장비 체크리스트</a></li>
+<li><a href="tip-camping-sleep.html">텐트에서 잘 자는 법</a></li>
+<li><a href="tip-winter-camping.html">겨울 캠핑 가이드</a></li>
+</ul>
+</div>
+</div>
+</main>
+
+<script>
+// 지역·월별 평균 밤 최저 기온 (평년값 근사)
+var tempTable={
+metro:[-9,-7,-1,5,11,17,22,22,16,8,2,-5],
+gangwon:[-12,-10,-4,2,8,14,19,19,13,5,-1,-8],
+jungsan:[-2,-1,3,8,13,17,21,21,17,12,6,0],
+'jeju-sea':[2,3,6,10,14,18,22,22,19,15,10,5],
+'south-sea':[0,1,5,10,15,19,23,23,18,12,6,2],
+'nat-park':[-10,-8,-2,4,10,15,20,20,14,6,0,-7]
+};
+function calcSB(e){
+e.preventDefault();
+var r=document.getElementById('region').value;
+var m=+document.getElementById('month').value;
+var sh=document.getElementById('shelter').value;
+var ch=document.getElementById('chill').value;
+var t=tempTable[r][m-1];
+var effT=t;
+if(sh==='tent-floor')effT+=4;
+if(sh==='glamping')effT+=15;
+if(ch==='low')effT+=2;
+if(ch==='high')effT-=3;
+var cmf=effT-5;
+cmf=Math.round(cmf);
+
+var typeStr,gradeStr,extraStr;
+if(cmf>=15){gradeStr='여름용';typeStr='얇은 여름 침낭 또는 홑이불로 충분';extraStr='통풍 좋은 텐트, 모기장';}
+else if(cmf>=5){gradeStr='3계절';typeStr='3계절 침낭 또는 홑이불+매트';extraStr='얇은 플리스 상의';}
+else if(cmf>=-5){gradeStr='3계절+라이너 or 동계';typeStr='3계절 침낭 + 라이너, 또는 가벼운 동계 침낭';extraStr='핫팩 2~4개, 비니, 두꺼운 양말';}
+else if(cmf>=-15){gradeStr='동계';typeStr='동계 침낭 (다운 또는 고충전 화학솜)';extraStr='핫팩 6개+, 발열 매트, 롱패딩';}
+else{gradeStr='극한 동계';typeStr='탐사용 동계 침낭';extraStr='텐트 안 발열 매트 2중, 전기 사이트 고려';}
+
+document.getElementById('r-grade').textContent='▸ '+gradeStr+' 침낭 추천';
+document.getElementById('r-temp').textContent='약 '+t+'℃';
+document.getElementById('r-comfort').textContent='Comfort '+cmf+'℃ 이하';
+document.getElementById('r-type').textContent=typeStr;
+document.getElementById('r-extra').textContent=extraStr;
+document.getElementById('result').classList.add('show');
+document.getElementById('result').scrollIntoView({behavior:'smooth',block:'start'});
+return false;
+}
+</script>
+
+<footer><div class="container">
+<div class="footer-grid">
+<div class="footer-brand"><a href="index.html" class="logo">고고캠프</a><p>민간 캠핑 정보 참고 서비스.</p></div>
+<div class="footer-col"><h4>도구</h4><ul><li><a href="tools.html">전체 도구</a></li><li><a href="tool-weather.html">캠핑 가능 판정</a></li><li><a href="tool-tent-size.html">텐트 크기 추천</a></li></ul></div>
+<div class="footer-col"><h4>정보</h4><ul><li><a href="guide.html">가이드</a></li><li><a href="tips.html">팁</a></li><li><a href="faq.html">FAQ</a></li></ul></div>
+<div class="footer-col"><h4>사이트</h4><ul><li><a href="about.html">소개</a></li><li><a href="contact.html">문의</a></li><li><a href="terms.html">이용약관</a></li><li><a href="privacy.html">개인정보처리방침</a></li></ul></div>
+</div>
+<div class="footer-bottom"><p>© 2026 고고캠프.</p></div>
+</div></footer>
+
+<script src="js/mobile-nav.js?v=2" defer></script>
+</body>
+</html>

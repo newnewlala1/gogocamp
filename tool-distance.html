@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>캠핑장 거리·유류비 계산기 — 출발지·목적지 자동 계산 | 고고캠프</title>
+<meta name="description" content="출발지와 캠핑장 거리로 유류비·톨비·소요시간을 자동 계산합니다. 자동차 연비·현재 유가 반영.">
+<link rel="canonical" href="https://gogocamp.kr/tool-distance.html">
+<link rel="stylesheet" href="css/style.css?v=3">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700;800&display=swap" rel="stylesheet">
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"WebApplication","name":"캠핑장 거리·유류비 계산기","applicationCategory":"Utility","operatingSystem":"Web","url":"https://gogocamp.kr/tool-distance.html"}</script>
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-8296789991007286" crossorigin="anonymous"></script>
+<style>
+.tool-wrap{max-width:720px;margin:0 auto;padding:24px 16px}
+.tool-wrap h1{font-size:1.6rem;margin:0 0 8px}
+.tool-lead{color:#6b7280;margin:0 0 24px}
+.tool-form{background:#fff;border:1px solid #e5e7eb;border-radius:12px;padding:20px}
+.tool-row{margin-bottom:16px}
+.tool-row label{display:block;font-weight:600;margin-bottom:6px;font-size:0.95rem}
+.tool-row input,.tool-row select{width:100%;padding:10px 12px;border:1px solid #d1d5db;border-radius:8px;font-size:1rem;box-sizing:border-box}
+.tool-row .hint{color:#9ca3af;font-size:0.82rem;margin-top:4px}
+.tool-btn{width:100%;padding:14px;background:#059669;color:#fff;border:0;border-radius:8px;font-size:1rem;font-weight:700;cursor:pointer;margin-top:8px}
+.tool-btn:hover{background:#047857}
+.tool-result{display:none;margin-top:20px;background:#f0fdf4;border:2px solid #059669;border-radius:12px;padding:20px}
+.tool-result.show{display:block}
+.tool-result h2{margin:0 0 12px;font-size:1.2rem;color:#065f46}
+.tool-result table{width:100%;border-collapse:collapse}
+.tool-result td{padding:8px 4px;border-bottom:1px solid #d1fae5;font-size:0.95rem}
+.tool-result td:last-child{text-align:right;font-weight:700}
+.tool-result .total{font-size:1.3rem;color:#059669;font-weight:800}
+.tool-notice{background:#fffbeb;border:1px solid #fde68a;border-radius:8px;padding:12px;margin-top:16px;font-size:0.85rem;color:#78350f}
+.breadcrumb-tool{color:#6b7280;font-size:0.85rem;margin-bottom:16px}
+.breadcrumb-tool a{color:#059669;text-decoration:none}
+.dist-ref{background:#f9fafb;padding:12px;border-radius:8px;margin-top:16px;font-size:0.85rem}
+.dist-ref table{width:100%;border-collapse:collapse}
+.dist-ref td{padding:6px 8px;border-bottom:1px solid #e5e7eb}
+</style>
+</head>
+<body>
+
+<header><div class="container"><div class="header-inner"><a href="index.html" class="logo">고고<span class="accent">캠프</span></a><nav><ul class="nav-menu"><li><a href="index.html">홈</a></li><li><a href="campgrounds.html">캠핑장 찾기</a></li><li><a href="tools.html" class="active">도구</a></li><li><a href="guide.html">가이드</a></li><li><a href="tips.html">팁</a></li><li><a href="about.html">소개</a></li></ul></nav></div></div></header>
+
+<main>
+<div class="tool-wrap">
+<div class="breadcrumb-tool"><a href="index.html">홈</a> › <a href="tools.html">도구</a> › 거리·유류비 계산기</div>
+<h1>캠핑장 거리·유류비 계산기</h1>
+<p class="tool-lead">왕복 거리와 차량 조건을 입력하면 유류비·톨비·예상 소요시간을 계산합니다.</p>
+
+<form class="tool-form" onsubmit="return calcDist(event)">
+<div class="tool-row">
+<label for="dist">왕복 거리 (km)</label>
+<input type="number" id="dist" min="10" max="2000" value="300" required>
+<div class="hint">참고 거리: 서울-강원 홍천 왕복 220km, 서울-설악 왕복 400km, 서울-해남 왕복 900km</div>
+</div>
+<div class="tool-row">
+<label for="eff">차량 연비 (km/L)</label>
+<input type="number" id="eff" min="3" max="30" step="0.1" value="10" required>
+<div class="hint">경차 15, 세단 12, SUV 10, 캠핑카·대형 7 정도</div>
+</div>
+<div class="tool-row">
+<label for="price">유가 (원/L)</label>
+<input type="number" id="price" min="1000" max="3000" value="1750" required>
+</div>
+<div class="tool-row">
+<label for="avgSpeed">평균 속도 (km/h)</label>
+<input type="number" id="avgSpeed" min="40" max="110" value="80" required>
+<div class="hint">고속도로 위주 80~90, 국도 혼합 60~70</div>
+</div>
+<div class="tool-row">
+<label for="tollRate">톨비 환산 (km당 원)</label>
+<input type="number" id="tollRate" min="0" max="200" value="55" required>
+<div class="hint">고속도로 평균 km당 50~60원, 국도만이면 0</div>
+</div>
+<button type="submit" class="tool-btn">계산하기</button>
+</form>
+
+<div class="tool-result" id="result">
+<h2>왕복 비용·시간 예상</h2>
+<table>
+<tr><td>⛽ 유류비</td><td id="r-fuel">-</td></tr>
+<tr><td>🛣️ 톨비 (왕복)</td><td id="r-toll">-</td></tr>
+<tr><td>⏱️ 예상 왕복 소요시간</td><td id="r-time">-</td></tr>
+<tr><td class="total">💰 교통비 합계</td><td class="total" id="r-total">-</td></tr>
+</table>
+<div class="tool-notice"><strong>참고:</strong> 실제 톨비는 노선별로 다릅니다. 정확한 금액은 <a href="https://www.ex.co.kr" target="_blank" rel="noopener">한국도로공사</a> 통행료 계산기에서 확인하세요.</div>
+</div>
+
+<div class="dist-ref">
+<strong>주요 왕복 거리 참고 (서울 출발 기준)</strong>
+<table>
+<tr><td>남양주 북한강 캠핑권</td><td>80~120km</td></tr>
+<tr><td>가평·청평</td><td>120~180km</td></tr>
+<tr><td>포천·연천</td><td>120~180km</td></tr>
+<tr><td>홍천·춘천</td><td>200~250km</td></tr>
+<tr><td>단양·충주</td><td>240~300km</td></tr>
+<tr><td>태안·보령</td><td>240~320km</td></tr>
+<tr><td>양양·속초·강릉</td><td>350~450km</td></tr>
+<tr><td>전주·무주</td><td>400~500km</td></tr>
+<tr><td>담양·순천</td><td>600~720km</td></tr>
+<tr><td>여수·거제·통영</td><td>700~900km</td></tr>
+<tr><td>해남·완도</td><td>900~1,000km</td></tr>
+</table>
+</div>
+
+<div style="margin-top:28px">
+<h3>관련 도구·가이드</h3>
+<ul>
+<li><a href="tool-budget.html">전체 예산 계산기</a></li>
+<li><a href="tool-weather.html">캠핑 가능 판정</a></li>
+<li><a href="camping-reservation-tips.html">예약 꿀팁</a></li>
+</ul>
+</div>
+</div>
+</main>
+
+<script>
+function calcDist(e){
+e.preventDefault();
+var d=+document.getElementById('dist').value;
+var ef=+document.getElementById('eff').value;
+var p=+document.getElementById('price').value;
+var sp=+document.getElementById('avgSpeed').value;
+var tr=+document.getElementById('tollRate').value;
+var fuel=Math.round(d/ef*p);
+var toll=Math.round(d*tr);
+var min=Math.round(d/sp*60);
+var h=Math.floor(min/60),m=min%60;
+var total=fuel+toll;
+var fmt=function(v){return v.toLocaleString('ko-KR')+'원'};
+document.getElementById('r-fuel').textContent=fmt(fuel);
+document.getElementById('r-toll').textContent=fmt(toll);
+document.getElementById('r-time').textContent=(h?h+'시간 ':'')+m+'분';
+document.getElementById('r-total').textContent=fmt(total);
+document.getElementById('result').classList.add('show');
+document.getElementById('result').scrollIntoView({behavior:'smooth',block:'start'});
+return false;
+}
+</script>
+
+<footer><div class="container">
+<div class="footer-grid">
+<div class="footer-brand"><a href="index.html" class="logo">고고캠프</a><p>민간 캠핑 정보 참고 서비스.</p></div>
+<div class="footer-col"><h4>도구</h4><ul><li><a href="tools.html">전체 도구</a></li><li><a href="tool-budget.html">예산 계산기</a></li><li><a href="tool-weather.html">캠핑 가능 판정</a></li></ul></div>
+<div class="footer-col"><h4>정보</h4><ul><li><a href="guide.html">가이드</a></li><li><a href="tips.html">팁</a></li><li><a href="faq.html">FAQ</a></li></ul></div>
+<div class="footer-col"><h4>사이트</h4><ul><li><a href="about.html">소개</a></li><li><a href="contact.html">문의</a></li><li><a href="terms.html">이용약관</a></li><li><a href="privacy.html">개인정보처리방침</a></li></ul></div>
+</div>
+<div class="footer-bottom"><p>© 2026 고고캠프.</p></div>
+</div></footer>
+
+<script src="js/mobile-nav.js?v=2" defer></script>
+</body>
+</html>
