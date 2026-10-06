@@ -1,4 +1,6 @@
 User-agent: *
 Allow: /
 
+Sitemap: https://gogocamp.kr/sitemap-index.xml
 Sitemap: https://gogocamp.kr/sitemap.xml
+Sitemap: https://gogocamp.kr/sitemap-camps.xml
