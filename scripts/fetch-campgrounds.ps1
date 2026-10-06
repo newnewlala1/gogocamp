@@ -1,4 +1,5 @@
 ﻿# 한국관광공사 고캠핑 API 데이터 수집 (PowerShell)
+# PS 5.1 UTF-8 디코딩 문제 해결: Invoke-WebRequest + 바이트 수동 디코드
 # 사용법: powershell -ExecutionPolicy Bypass -File fetch-campgrounds.ps1
 
 $SERVICE_KEY = "55e2fcb7b492a3d791a8730247bd535e0aedcf84996d49ae9f883dbad0aeb375"
@@ -10,14 +11,22 @@ $MAX_PAGES = 10
 
 if (-not (Test-Path $OUT_DIR)) { New-Item -ItemType Directory -Path $OUT_DIR -Force | Out-Null }
 
-$allItems = @()
+function Get-JsonUtf8($url) {
+    # PS 5.1: Invoke-WebRequest.Content은 Latin-1로 해석됨 → RawContentStream에서 바이트 직접 읽어 UTF-8 디코드
+    $resp = Invoke-WebRequest -Uri $url -Method Get -TimeoutSec 60 -UserAgent "gogocamp-fetcher/1.0" -UseBasicParsing
+    $bytes = $resp.RawContentStream.ToArray()
+    $text = [System.Text.Encoding]::UTF8.GetString($bytes)
+    return $text | ConvertFrom-Json
+}
+
+$allItems = New-Object System.Collections.ArrayList
 $totalCount = $null
 
 for ($page = 1; $page -le $MAX_PAGES; $page++) {
     Write-Host "페이지 $page 요청 중..." -NoNewline
     $url = "$API_BASE`?serviceKey=$SERVICE_KEY&numOfRows=$PAGE_SIZE&pageNo=$page&MobileOS=ETC&MobileApp=gogocamp&_type=json"
     try {
-        $resp = Invoke-RestMethod -Uri $url -Method Get -TimeoutSec 60 -UserAgent "gogocamp-fetcher/1.0"
+        $resp = Get-JsonUtf8 $url
     } catch {
         Write-Host " 실패: $_" -ForegroundColor Red
         Start-Sleep -Seconds 2
@@ -26,8 +35,6 @@ for ($page = 1; $page -le $MAX_PAGES; $page++) {
 
     if (-not $resp.response.body) {
         Write-Host " 응답 구조 오류" -ForegroundColor Red
-        Write-Host "응답 샘플:"
-        $resp | ConvertTo-Json -Depth 4 | Select-Object -First 500
         break
     }
 
@@ -42,27 +49,27 @@ for ($page = 1; $page -le $MAX_PAGES; $page++) {
     if (-not $items) { Write-Host "  더 이상 데이터 없음"; break }
 
     foreach ($it in $items) {
-        $allItems += [PSCustomObject]@{
-            contentId      = $it.contentId
-            name           = ($it.facltNm -as [string]).Trim()
-            sido           = $it.doNm
-            sigungu        = $it.sigunguNm
-            address        = $it.addr1
-            intro          = ($it.intro -as [string]).Trim()
-            features       = ($it.featureNm -as [string]).Trim()
-            theme          = ($it.themaEnvrnCl -as [string]).Trim()
-            induty         = ($it.induty -as [string]).Trim()
-            lctCl          = ($it.lctCl -as [string]).Trim()
-            hvofBgnde      = $it.hvofBgnde
-            hvofEnddle     = $it.hvofEnddle
-            animalCmgCl    = ($it.animalCmgCl -as [string]).Trim()
-            tooltip        = ($it.tooltip -as [string]).Trim()
-            tel            = $it.tel
-            homepage       = $it.homepage
-            mapX           = $it.mapX
-            mapY           = $it.mapY
-            firstImageUrl  = $it.firstImageUrl
-        }
+        [void]$allItems.Add([PSCustomObject]@{
+            contentId      = "$($it.contentId)"
+            name           = "$($it.facltNm)".Trim()
+            sido           = "$($it.doNm)"
+            sigungu        = "$($it.sigunguNm)"
+            address        = "$($it.addr1)"
+            intro          = "$($it.intro)".Trim()
+            features       = "$($it.featureNm)".Trim()
+            theme          = "$($it.themaEnvrnCl)".Trim()
+            induty         = "$($it.induty)".Trim()
+            lctCl          = "$($it.lctCl)".Trim()
+            hvofBgnde      = "$($it.hvofBgnde)"
+            hvofEnddle     = "$($it.hvofEnddle)"
+            animalCmgCl    = "$($it.animalCmgCl)".Trim()
+            tooltip        = "$($it.tooltip)".Trim()
+            tel            = "$($it.tel)"
+            homepage       = "$($it.homepage)"
+            mapX           = "$($it.mapX)"
+            mapY           = "$($it.mapY)"
+            firstImageUrl  = "$($it.firstImageUrl)"
+        })
     }
 
     if ($totalCount -and $allItems.Count -ge $totalCount) { break }
@@ -72,6 +79,8 @@ for ($page = 1; $page -le $MAX_PAGES; $page++) {
 Write-Host ""
 Write-Host "✅ 총 $($allItems.Count) 개 수집 완료" -ForegroundColor Green
 
-$out = [PSCustomObject]@{ total = $allItems.Count; items = $allItems }
-$out | ConvertTo-Json -Depth 5 | Out-File -FilePath $OUT_FILE -Encoding utf8
+$out = [PSCustomObject]@{ total = $allItems.Count; items = @($allItems) }
+$jsonText = $out | ConvertTo-Json -Depth 5
+$utf8NoBom = New-Object System.Text.UTF8Encoding $false
+[System.IO.File]::WriteAllText($OUT_FILE, $jsonText, $utf8NoBom)
 Write-Host "💾 저장: $OUT_FILE" -ForegroundColor Cyan

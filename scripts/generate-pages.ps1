@@ -36,11 +36,8 @@ $sidoLink = @{
 }
 
 function Get-Slug($name, $cid) {
-    $s = $name -replace '[^\w가-힣]+', '-'
-    $s = $s.Trim('-')
-    if ($s.Length -gt 40) { $s = $s.Substring(0, 40) }
-    if (-not $s) { $s = "camp" }
-    return "$s-$cid"
+    # URL은 content ID만 사용 — ASCII 안전, Google 색인 호환
+    return "camp-$cid"
 }
 
 function Encode-Html($s) {
