@@ -170,7 +170,7 @@ foreach ($it in $items) {
 <title>$name — $sigungu 캠핑장 정보·시설·사이트 수 | 고고캠프</title>
 <meta name="description" content="$name ($sigungu) 공공 데이터 기반 캠핑장 상세 — 사이트 수, 화장실·샤워실, 반려동물 동반, 체험 프로그램, 공식 홈페이지 요약.">
 <link rel="canonical" href="https://gogocamp.kr/camp/$slug.html">
-<link rel="stylesheet" href="../css/style.css?v=3">
+<link rel="stylesheet" href="../css/style.css?v=4">
 <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700;800&display=swap" rel="stylesheet">
 <script type="application/ld+json">$schema</script>
 <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-8296789991007286" crossorigin="anonymous"></script>
@@ -303,7 +303,7 @@ $indexHtml = @"
 <title>전국 캠핑장 전체 목록 $($items.Count)개 — 지역별 디렉토리 | 고고캠프</title>
 <meta name="description" content="전국 캠핑장 $($items.Count)개 지역별 전체 목록. 공공 데이터 기반 공식 캠핑장 디렉토리.">
 <link rel="canonical" href="https://gogocamp.kr/camp/">
-<link rel="stylesheet" href="../css/style.css?v=3">
+<link rel="stylesheet" href="../css/style.css?v=4">
 <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700;800&display=swap" rel="stylesheet">
 <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-8296789991007286" crossorigin="anonymous"></script>
 </head><body>
