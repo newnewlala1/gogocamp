@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>전국 캠핑장 지도 — 3,120곳 위치·필터·클러스터 | 고고캠프</title>
+<meta name="description" content="전국 캠핑장 3,120곳을 지도에서 확인하세요. 지역·유형별 필터, 마커 클러스터링, 비교함 담기 통합.">
+<link rel="canonical" href="https://gogocamp.kr/map.html">
+<link rel="stylesheet" href="css/style.css?v=3">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700;800&display=swap" rel="stylesheet">
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"WebApplication","name":"전국 캠핑장 지도","applicationCategory":"Utility","operatingSystem":"Web","url":"https://gogocamp.kr/map.html"}</script>
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-8296789991007286" crossorigin="anonymous"></script>
+<style>
+.map-wrap{position:relative}
+.map-controls{position:absolute;top:12px;left:12px;right:12px;z-index:10;display:flex;gap:8px;flex-wrap:wrap;background:#fff;padding:10px;border-radius:12px;box-shadow:0 2px 8px rgba(0,0,0,0.1)}
+.map-controls select{padding:8px 10px;border:1px solid #d1d5db;border-radius:6px;font-size:0.9rem;flex:1;min-width:100px}
+.map-controls button{padding:8px 16px;background:#059669;color:#fff;border:0;border-radius:6px;cursor:pointer;font-weight:700;font-size:0.9rem}
+.map-counter{position:absolute;bottom:70px;left:12px;background:#fff;padding:8px 14px;border-radius:20px;box-shadow:0 2px 8px rgba(0,0,0,0.15);font-size:0.9rem;font-weight:700;color:#059669;z-index:10}
+#kmap{width:100%;height:calc(100vh - 60px);min-height:500px}
+
+.map-info-popup{padding:12px;max-width:260px;font-size:0.9rem}
+.map-info-popup h3{margin:0 0 8px;font-size:1rem;color:#065f46}
+.map-info-popup p{margin:4px 0;color:#6b7280;font-size:0.82rem}
+.map-info-popup .popup-actions{margin-top:10px;display:flex;gap:6px}
+.map-info-popup .popup-actions a,.map-info-popup .popup-actions button{flex:1;padding:6px 10px;border-radius:6px;font-size:0.82rem;text-align:center;text-decoration:none;cursor:pointer;border:0;font-weight:600}
+.map-info-popup .popup-actions .btn-detail{background:#059669;color:#fff}
+.map-info-popup .popup-actions .btn-add{background:#f0fdf4;color:#059669;border:1px solid #059669}
+.map-info-popup .popup-actions .btn-added{background:#065f46;color:#fff;cursor:default}
+
+.loading-overlay{position:absolute;top:0;left:0;right:0;bottom:0;background:rgba(255,255,255,0.9);display:flex;align-items:center;justify-content:center;z-index:20;font-size:1rem;color:#6b7280}
+</style>
+</head>
+<body>
+
+<header><div class="container"><div class="header-inner"><a href="index.html" class="logo">고고<span class="accent">캠프</span></a><nav><ul class="nav-menu"><li><a href="index.html">홈</a></li><li><a href="campgrounds.html">캠핑장 찾기</a></li><li><a href="map.html" class="active">지도</a></li><li><a href="compare.html">비교</a></li><li><a href="tools.html">도구</a></li><li><a href="guide.html">가이드</a></li><li><a href="about.html">소개</a></li></ul></nav></div></div></header>
+
+<main>
+<div class="map-wrap">
+<div class="map-controls">
+<select id="filterSido"><option value="">전체 지역</option></select>
+<select id="filterInduty">
+<option value="">전체 유형</option>
+<option value="오토">오토캠핑</option>
+<option value="글램핑">글램핑</option>
+<option value="카라반">카라반</option>
+<option value="휴양림">자연휴양림</option>
+<option value="일반">일반 야영</option>
+</select>
+<select id="filterAnimal">
+<option value="">반려동물 전체</option>
+<option value="가능">동반 가능</option>
+</select>
+<button onclick="applyFilter()">적용</button>
+</div>
+<div class="map-counter"><span id="mapCount">0</span>곳 표시 중</div>
+<div id="kmap"></div>
+<div class="loading-overlay" id="loadingOverlay">데이터 로딩 중...</div>
+</div>
+</main>
+
+<script src="js/compare.js?v=1" defer></script>
+<script src="js/mobile-nav.js?v=2" defer></script>
+
+<!-- 카카오맵 JavaScript API — 사용자님 Web 키 등록 후 autoload=false로 제어 -->
+<script src="//dapi.kakao.com/v2/maps/sdk.js?appkey=KAKAO_APP_KEY_PLACEHOLDER&libraries=clusterer&autoload=false" onerror="document.getElementById('loadingOverlay').textContent='지도 로드 실패. 네트워크를 확인하세요.'"></script>
+
+<script>
+(function(){
+    let kmap, clusterer, allItems = [], allMarkers = [];
+    const SIDO_LIST = ['강원특별자치도','경기도','경상남도','경상북도','광주광역시','대구광역시','대전광역시','부산광역시','서울특별시','세종특별자치시','울산광역시','인천광역시','전라남도','전북특별자치도','제주특별자치도','충청남도','충청북도'];
+
+    function populateSido(){
+        const sel = document.getElementById('filterSido');
+        SIDO_LIST.forEach(s => {
+            const o = document.createElement('option');
+            o.value = s; o.textContent = s;
+            sel.appendChild(o);
+        });
+    }
+
+    async function loadData(){
+        try {
+            const res = await fetch('data/compare-data.json');
+            const d = await res.json();
+            allItems = d.items.filter(x => x.mapX && x.mapY && parseFloat(x.mapY) > 30 && parseFloat(x.mapX) > 120);
+            return true;
+        } catch(e){ console.error(e); return false; }
+    }
+
+    function matchFilter(it){
+        const sido = document.getElementById('filterSido').value;
+        const induty = document.getElementById('filterInduty').value;
+        const animal = document.getElementById('filterAnimal').value;
+        if(sido && it.sido !== sido) return false;
+        if(induty && !(it.induty || '').includes(induty)) return false;
+        if(animal === '가능' && !(it.animalCmgCl || '').includes('가능')) return false;
+        return true;
+    }
+
+    function escapeHtml(s){
+        return (s||'').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'})[c]);
+    }
+
+    function initMap(){
+        kakao.maps.load(function(){
+            const container = document.getElementById('kmap');
+            kmap = new kakao.maps.Map(container, {
+                center: new kakao.maps.LatLng(36.5, 127.8),
+                level: 13
+            });
+            clusterer = new kakao.maps.MarkerClusterer({
+                map: kmap,
+                averageCenter: true,
+                minLevel: 7,
+                disableClickZoom: false,
+                styles: [{
+                    width:'44px', height:'44px',
+                    background:'#059669', color:'#fff',
+                    borderRadius:'50%', textAlign:'center', lineHeight:'44px',
+                    fontWeight:'700', fontSize:'14px', opacity:'0.9'
+                }]
+            });
+            renderMarkers();
+            document.getElementById('loadingOverlay').style.display = 'none';
+        });
+    }
+
+    function renderMarkers(){
+        if(!kmap || !clusterer) return;
+        clusterer.clear();
+        allMarkers = [];
+        const items = allItems.filter(matchFilter);
+        const markers = items.map(it => {
+            const pos = new kakao.maps.LatLng(parseFloat(it.mapY), parseFloat(it.mapX));
+            const m = new kakao.maps.Marker({ position: pos });
+            const info = buildPopup(it);
+            kakao.maps.event.addListener(m, 'click', function(){
+                info.open(kmap, m);
+            });
+            allMarkers.push({marker:m, item:it, info:info});
+            return m;
+        });
+        clusterer.addMarkers(markers);
+        document.getElementById('mapCount').textContent = items.length.toLocaleString('ko-KR');
+    }
+
+    function buildPopup(it){
+        const hasInBasket = window.gogoCompare && window.gogoCompare.has(it.contentId);
+        const cls = hasInBasket ? 'btn-added' : 'btn-add';
+        const text = hasInBasket ? '✓ 담김' : '📋 비교함 담기';
+        const html = '<div class="map-info-popup">' +
+            '<h3>' + escapeHtml(it.name) + '</h3>' +
+            '<p>📍 ' + escapeHtml(it.sido) + ' ' + escapeHtml(it.sigungu) + '</p>' +
+            '<p>' + escapeHtml(it.induty || '유형 미표기') + '</p>' +
+            '<div class="popup-actions">' +
+            '<a class="btn-detail" href="camp/camp-' + it.contentId + '.html">상세 보기</a>' +
+            '<button class="' + cls + '" onclick="toggleCompare(\'' + it.contentId + '\', \'' + escapeHtml(it.name).replace(/\\/g,'\\\\').replace(/\'/g,"\\'") + '\', \'' + escapeHtml(it.sido) + '\', \'' + escapeHtml(it.sigungu) + '\', this)">' + text + '</button>' +
+            '</div></div>';
+        return new kakao.maps.InfoWindow({ content: html, removable: true });
+    }
+
+    window.toggleCompare = function(id, name, sido, sigungu, btn){
+        if(!window.gogoCompare) return;
+        if(window.gogoCompare.has(id)){
+            window.gogoCompare.remove(id);
+            btn.className = 'btn-add';
+            btn.textContent = '📋 비교함 담기';
+        } else {
+            const r = window.gogoCompare.add(id, name, sido, sigungu);
+            if(!r.ok && r.reason === 'full'){
+                alert('비교함은 최대 ' + window.gogoCompare.max + '곳까지 담을 수 있습니다.');
+                return;
+            }
+            btn.className = 'btn-added';
+            btn.textContent = '✓ 담김';
+        }
+    };
+
+    window.applyFilter = renderMarkers;
+
+    (async function init(){
+        populateSido();
+        const ok = await loadData();
+        if(!ok){
+            document.getElementById('loadingOverlay').textContent = '데이터를 불러올 수 없습니다.';
+            return;
+        }
+        if(typeof kakao === 'undefined' || !kakao.maps){
+            document.getElementById('loadingOverlay').textContent = '지도 API 로드 실패. 네트워크를 확인하세요.';
+            return;
+        }
+        initMap();
+    })();
+})();
+</script>
+
+<footer><div class="container">
+<div class="footer-grid">
+<div class="footer-brand"><a href="index.html" class="logo">고고캠프</a><p>민간 캠핑 정보 참고 서비스.</p></div>
+<div class="footer-col"><h4>캠핑장</h4><ul><li><a href="campgrounds.html">전체 캠핑장</a></li><li><a href="map.html">지도</a></li><li><a href="compare.html">비교</a></li></ul></div>
+<div class="footer-col"><h4>도구</h4><ul><li><a href="tools.html">전체 도구</a></li><li><a href="tool-budget.html">예산 계산기</a></li><li><a href="tool-weather.html">캠핑 가능 판정</a></li></ul></div>
+<div class="footer-col"><h4>사이트</h4><ul><li><a href="about.html">소개</a></li><li><a href="contact.html">문의</a></li><li><a href="terms.html">이용약관</a></li><li><a href="privacy.html">개인정보처리방침</a></li></ul></div>
+</div>
+<div class="footer-bottom"><p>© 2026 고고캠프.</p></div>
+</div></footer>
+
+</body>
+</html>
