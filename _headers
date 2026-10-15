@@ -1,6 +1,3 @@
 /scripts/*
   X-Robots-Tag: noindex
   Cache-Control: no-store
-
-/data/campgrounds.json
-  X-Robots-Tag: noindex
