@@ -1,7 +1,13 @@
 ﻿# 한국관광공사 고캠핑 API 데이터 수집 — 전체 필드 (비교 기능용)
 # PS 5.1 UTF-8 버그 해결 포함
 
-$SERVICE_KEY = "55e2fcb7b492a3d791a8730247bd535e0aedcf84996d49ae9f883dbad0aeb375"
+# 공공데이터포털에서 발급받은 서비스 키를 환경 변수 또는 로컬 파일에 저장하여 사용하세요
+$SERVICE_KEY = $env:GOCAMPING_API_KEY
+if (-not $SERVICE_KEY) {
+    Write-Host "환경 변수 GOCAMPING_API_KEY를 설정하세요." -ForegroundColor Red
+    Write-Host "예: `$env:GOCAMPING_API_KEY = '본인 키'" -ForegroundColor Yellow
+    exit 1
+}
 $API_BASE = "https://apis.data.go.kr/B551011/GoCamping/basedList"
 $OUT_DIR = Join-Path (Split-Path -Parent $PSScriptRoot) "data"
 $OUT_FILE = Join-Path $OUT_DIR "campgrounds.json"

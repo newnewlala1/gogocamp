@@ -21,7 +21,10 @@ from pathlib import Path
 # =========================================================================
 # 설정: 아래 값을 본인의 실제 서비스 키로 교체하세요
 # =========================================================================
-SERVICE_KEY = "55e2fcb7b492a3d791a8730247bd535e0aedcf84996d49ae9f883dbad0aeb375"
+import os
+SERVICE_KEY = os.environ.get("GOCAMPING_API_KEY", "")
+if not SERVICE_KEY:
+    raise SystemExit("환경 변수 GOCAMPING_API_KEY를 설정하세요. 예: export GOCAMPING_API_KEY='본인 키'")
 # =========================================================================
 
 API_BASE = "https://apis.data.go.kr/B551011/GoCamping/basedList"
