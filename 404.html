@@ -5,23 +5,39 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>페이지를 찾을 수 없음 (404) | 고고캠프</title>
 <meta name="description" content="요청하신 페이지를 찾을 수 없습니다. 홈·캠핑장 디렉토리·지도·비교·도구에서 다시 시작하세요.">
-<meta name="robots" content="noindex">
-<link rel="canonical" href="https://gogocamp.kr/404.html">
+<meta name="robots" content="noindex,follow">
+<link rel="icon" href="/favicon.ico">
 <link rel="stylesheet" href="/css/style.css?v=4">
+<link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700;800&display=swap" rel="stylesheet">
 <style>
-.err-wrap{max-width:620px;margin:0 auto;padding:48px 20px;text-align:center}
-.err-code{font-size:5rem;font-weight:800;color:#059669;line-height:1;margin:0}
-.err-msg{font-size:1.3rem;color:#111827;margin:16px 0 8px;font-weight:700}
-.err-sub{color:#6b7280;margin:0 0 32px;line-height:1.7}
-.err-reasons{background:#f9fafb;border-radius:10px;padding:20px;text-align:left;margin:0 0 32px}
-.err-reasons h3{margin:0 0 10px;font-size:1rem;color:#065f46}
-.err-reasons ul{margin:0;padding-left:20px;color:#374151;font-size:0.92rem}
+.err-wrap{max-width:680px;margin:0 auto;padding:64px 20px;text-align:center}
+.err-code{font-size:6rem;font-weight:800;color:#059669;line-height:1;margin:0;letter-spacing:-2px}
+.err-msg{font-size:1.4rem;color:#111827;margin:12px 0 8px;font-weight:700}
+.err-sub{color:#6b7280;margin:0 0 28px;line-height:1.7;font-size:0.98rem}
+.err-search{margin:0 0 32px}
+.err-search form{display:flex;max-width:460px;margin:0 auto;gap:8px}
+.err-search input{flex:1;padding:12px 14px;border:1px solid #d1d5db;border-radius:8px;font-size:0.95rem;font-family:inherit}
+.err-search input:focus{outline:none;border-color:#059669;box-shadow:0 0 0 3px rgba(5,150,105,0.1)}
+.err-search button{padding:12px 20px;background:#059669;color:#fff;border:none;border-radius:8px;font-weight:600;cursor:pointer;font-family:inherit}
+.err-search button:hover{background:#047857}
+.err-reasons{background:#f9fafb;border-radius:10px;padding:20px 22px;text-align:left;margin:0 0 32px}
+.err-reasons h3{margin:0 0 10px;font-size:0.98rem;color:#065f46;font-weight:700}
+.err-reasons ul{margin:0;padding-left:20px;color:#374151;font-size:0.92rem;line-height:1.7}
 .err-reasons li{margin:4px 0}
 .err-links{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:10px}
-.err-links a{display:block;padding:14px;background:#fff;border:1px solid #d1fae5;border-radius:10px;text-decoration:none;color:#111827;font-weight:600}
-.err-links a:hover{border-color:#059669;color:#059669}
+.err-links a{display:block;padding:16px 10px;background:#fff;border:1px solid #d1fae5;border-radius:10px;text-decoration:none;color:#111827;font-weight:600;transition:all .15s;min-height:44px}
+.err-links a:hover{border-color:#059669;color:#059669;background:#f0fdf4}
 .err-links .ic{display:block;font-size:24px;margin-bottom:4px}
+.err-help{margin-top:36px;color:#9ca3af;font-size:0.88rem}
+.err-help a{color:#059669;text-decoration:none;font-weight:600}
+.err-help a:hover{text-decoration:underline}
+@media (max-width:480px){
+ .err-code{font-size:4.5rem}
+ .err-wrap{padding:40px 16px}
+ .err-search form{flex-direction:column}
+ .err-search button{width:100%}
+}
 </style>
 </head>
 <body>
@@ -32,33 +48,50 @@
 <div class="err-wrap">
 <div class="err-code">404</div>
 <p class="err-msg">페이지를 찾을 수 없습니다</p>
-<p class="err-sub">요청하신 주소에 해당하는 페이지가 없거나 이동·삭제되었을 수 있습니다.<br>아래에서 원하는 정보를 다시 찾아보세요.</p>
+<p class="err-sub">요청하신 주소에 해당하는 페이지가 없거나, 이동·삭제되었을 수 있습니다.<br>Google에서 캠핑장을 바로 검색하거나, 아래 메뉴에서 원하는 정보를 다시 찾아보세요.</p>
+
+<div class="err-search">
+<form action="https://www.google.com/search" method="get" target="_blank" rel="noopener">
+<input type="hidden" name="q" value="site:gogocamp.kr">
+<input type="search" name="q" placeholder="캠핑장 이름·지역을 검색하세요 (예: 제주 글램핑)" aria-label="사이트 내 검색" required>
+<button type="submit">검색</button>
+</form>
+</div>
 
 <div class="err-reasons">
 <h3>이렇게 와주신 거라면</h3>
 <ul>
 <li>주소를 직접 입력하다 오타가 났을 수 있습니다.</li>
 <li>북마크·외부 링크가 오래되어 존재하지 않는 페이지일 수 있습니다.</li>
-<li>캠핑장 데이터가 최근 공공 API에서 삭제되었을 수 있습니다.</li>
+<li>캠핑장 정보가 한국관광공사 공공데이터에서 변경·삭제되었을 수 있습니다.</li>
 </ul>
 </div>
 
 <div class="err-links">
 <a href="/"><span class="ic">🏠</span>홈으로</a>
-<a href="/camp/"><span class="ic">🏕️</span>캠핑장 전체 목록</a>
+<a href="/campgrounds.html"><span class="ic">🏕️</span>캠핑장 찾기</a>
 <a href="/map.html"><span class="ic">🗺️</span>지도에서 찾기</a>
 <a href="/compare.html"><span class="ic">📋</span>캠핑장 비교</a>
 <a href="/tools.html"><span class="ic">🧮</span>계산 도구</a>
 <a href="/guide.html"><span class="ic">📖</span>캠핑 가이드</a>
 </div>
 
-<p style="margin-top:32px;color:#9ca3af;font-size:0.85rem">문제가 지속되면 <a href="/contact.html" style="color:#059669">문의</a>로 알려주세요.</p>
+<p class="err-help">문제가 지속되면 <a href="/contact.html">문의</a>로 알려주세요. 1~2일 내에 답변 드립니다.</p>
 </div>
 </main>
 
 <footer><div class="container">
-<div class="footer-bottom"><p>© 2026 고고캠프.</p></div>
+<div class="footer-bottom">
+<p>© 2026 고고캠프. All rights reserved.</p>
+<div class="footer-bottom-links">
+<a href="/terms.html">이용약관</a>
+<a href="/privacy.html">개인정보처리방침</a>
+<a href="/contact.html">문의</a>
+<a href="/about.html">소개</a>
+</div>
+</div>
 </div></footer>
 
+<script src="/js/mobile-nav.js?v=2" defer></script>
 </body>
 </html>
